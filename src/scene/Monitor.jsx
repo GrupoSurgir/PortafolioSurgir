@@ -46,7 +46,7 @@ export default function Monitor({ pcRef, poweredOn, isPoweringOn, isPoweringOff,
   const forceBoot = () => {
     isPoweringOnRef.current = true;
     // Reiniciar la máquina de estados del monitor para el boot
-    st.current.clicked = false;
+    st.current.clicked = true;
     st.current.t = 0;
     st.current.phase = "powering";
     enterStarted.current = false;

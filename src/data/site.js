@@ -5,9 +5,10 @@
 export const site = {
   name: "SurgirStudio",
   shortName: "SURGIR",
-  tagline: "Plugins, Sistemas y Aplicaciones Web",
+  tagline:
+    "Construimos experiencias, herramientas y sistemas digitales para convertir ideas en productos reales.",
   description:
-    "SurgirStudio es el estudio digital de Samuel Buritica: desarrollo de plugins, sistemas e integraciones para servidores Minecraft, aplicaciones web y proyectos de automatización. Productos sobrios, técnicos y listos para producción.",
+    "Automatización, servidores de Minecraft, aplicaciones web, software y espacios digitales diseñados para funcionar, crecer y sentirse propios.",
   author: "Samuel Buritica",
   // Datos de marca para SEO / Open Graph. Completar con el dominio real cuando
   // exista (Netlify asigna un dominio provisional al desplegar).

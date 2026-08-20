@@ -39,7 +39,7 @@ export const products = [
     author: "Samuel Buritica",
     studio: "SurgirStudio",
     icon: "📦",
-    tagline: "Plugin para vender ítems y gestionar entregas entre jugadores.",
+    tagline: "Sistema de entregas diseñado para organizar y automatizar distribuciones en servidores Minecraft.",
     shortDescription:
       "Sistema de venta de ítems y entregas para servidores Minecraft: comandos configurables, permisos por rol y configuración por archivo.",
     description:
@@ -109,24 +109,25 @@ export const products = [
     purchaseUrl: "",
   },
 
-  // ===================================================================
-  // PERSONALIZACIÓN DEL PUESTO (Workplace Builder)
-  // -------------------------------------------------------------------
-  // Productos físicos/visuales para construir el puesto de trabajo en 3D.
-  // `slot` indica dónde aparecen en la escena y `type` qué modelo se
-  // renderiza (ve src/store/workplace/objects). `price` es referencia
-  // visual: en esta fase la personalización es gratis (sin cobro).
-  // ===================================================================
+// ===================================================================
+// PERSONALIZACIÓN DEL PUESTO (Workplace Builder)
+// -------------------------------------------------------------------
+// Productos físicos/visuales para construir el puesto de trabajo en 3D.
+// `slot` indica dónde aparecen en la escena y `type` qué modelo se
+// renderiza (ve src/store/workplace/objects).
+// `price` es referencia visual: en esta fase la personalización es gratis
+// (sin cobro). No existen cuentas cloud, límites ni pagos reales todavía.
+// ===================================================================
 
-  {
+{
     id: "monitor-basic",
     slug: "monitor-basic",
     name: "Monitor Basic",
     category: "personalizacion",
     slot: "monitor",
     type: "monitor-basic",
-    price: 129,
-    status: "Disponible",
+    price: 0,
+    status: "Disponible - fase desarrollo",
     featured: false,
     version: "1.0",
     compatibility: "Puesto SURGIR",

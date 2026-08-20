@@ -200,8 +200,8 @@ export default function App() {
           </button>
         )}
 
-        {/* Marca SURGIR durante la experiencia 3D. */}
-        {phase === "space" && (
+        {/* Marca SURGIR durante la experiencia 3D (solo en la aplicación, no en el espacio). */}
+        {phase === "page" && (
           <img src="/logo.png" alt="Surgir" className="space-logo" />
         )}
 
