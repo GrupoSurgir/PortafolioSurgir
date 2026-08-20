@@ -19,6 +19,18 @@ canvas {
   outline: none;
 }
 
+/* Contenedor raíz de la experiencia: ocupa el viewport real. En móvil se usa
+   100dvh (viewport dinámico) con 100vh como respaldo para no cortar contenido
+   bajo la barra del navegador. */
+.root-app {
+  height: 100vh;
+}
+@supports (height: 100dvh) {
+  .root-app {
+    height: 100dvh;
+  }
+}
+
 /* ---------- Espacio 3D (cosmos) ---------- */
 .scene-wrap {
   position: absolute;

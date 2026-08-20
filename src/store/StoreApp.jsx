@@ -101,8 +101,8 @@ function StoreAppInner({ storeId }) {
     const hash = pathFor(page, params);
     if (window.location.hash === hash) setRoute(parseHash());
     else window.location.hash = hash;
-    const el = document.querySelector(".sa-content");
-    if (el) el.scrollTop = 0;
+    const app = document.querySelector(".surgir-app");
+    if (app) app.scrollTop = 0;
   };
 
   const go = (page, params = {}) => {

@@ -129,7 +129,7 @@ export default function App() {
 
   return (
     <PaymentsProvider>
-      <div className="relative h-screen w-screen bg-black">
+      <div className="relative w-screen bg-black root-app">
         {/* Espacio 3D: montado desde el inicio. El PC es el centro; al hacer
             click en la pantalla se enciende y la cámara entra en él. */}
         {in3D && (
