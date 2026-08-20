@@ -1096,6 +1096,17 @@
   line-height: 1;
 }
 
+/* ---------- Descarga gratis (correo) ---------- */
+.sa-grant {
+  background:
+    radial-gradient(400px 160px at 90% -20%, rgba(127, 233, 255, 0.1), transparent 60%),
+    #0b1019;
+  border: 1px solid rgba(127, 233, 255, 0.18);
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 18px;
+}
+
 /* ---------- Checkout / login / pedido / resultado ----------
    Pantallas del flujo de compra presentadas como tarjetas reales:
    nunca como una lista vertical de texto suelto. */

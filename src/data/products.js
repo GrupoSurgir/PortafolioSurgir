@@ -6,9 +6,9 @@
 // sin cambiar la UI.
 //
 // Campos:
-//   price: 0        -> producto GRATIS (flujo: carrito -> checkout $0 -> pedido)
-//   price: > 0      -> producto de pago (carrito -> checkout; pago próximamente)
-//   downloadUrl     -> archivo descargable tras crear el pedido
+//   price: 0        -> producto GRATIS (descarga gratis: correo -> activa)
+//   price: > 0      -> producto de pago (pago próximamente; sin flujo aún)
+//   downloadUrl     -> archivo descargable tras activar la descarga
 //   status          -> "Disponible" | "Próximamente" | "En preparación"
 //   author, version, compatibility, requirements, installation, commands,
 //   permissions, changelog, wiki -> página completa del producto.

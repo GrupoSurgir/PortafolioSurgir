@@ -278,7 +278,8 @@ export default function AdminPanel({ settings, setSettings, onClose }) {
               <div className="sg-block-h">Datos de cobro (métodos manuales)</div>
               <p className="sg-mini">
                 Cuentas donde llega el dinero de transferencias y métodos
-                manuales. Aparecen en el checkout cuando el método está activo.
+                manuales. Se muestran al cliente cuando el método está activo y
+                exista un flujo de pago.
               </p>
               {["nequi", "daviplata", "bancolombia"].map((k) => (
                 <div className="sg-row" key={k}>

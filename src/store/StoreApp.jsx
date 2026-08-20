@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
 import { site } from "../data/site.js";
-import { useCart } from "../hooks/useCart.jsx";
-import { usePayments } from "./PaymentsContext.jsx";
-import { useAuth } from "./AuthContext.jsx";
-import { useOrders } from "./OrdersContext.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import StorePage from "./pages/StorePage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
@@ -11,9 +7,6 @@ import ServicesPage from "./pages/ServicesPage.jsx";
 import ProjectsPage from "./pages/ProjectsPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
-import CartPage from "./pages/CartPage.jsx";
-import CheckoutPage from "./pages/CheckoutPage.jsx";
-import AccountPage from "./pages/AccountPage.jsx";
 import WikiPage from "./pages/WikiPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import "./store.css";
@@ -25,7 +18,6 @@ const NAV = [
   { id: "projects", label: "Proyectos" },
   { id: "about", label: "Sobre" },
   { id: "contact", label: "Contacto" },
-  { id: "account", label: "Cuenta" },
 ];
 
 // Routing por hash: URLs directas (/#/store, /#/product/surgir-entregas, …)
@@ -56,12 +48,6 @@ function parseHash() {
       return { page: "about", params };
     case "contact":
       return { page: "contact", params };
-    case "account":
-      return { page: "account", params };
-    case "cart":
-      return { page: "cart", params };
-    case "checkout":
-      return { page: "checkout", params };
     default:
       return { page: "notfound", params };
   }
@@ -83,12 +69,6 @@ function pathFor(page, params = {}) {
       return "#/about";
     case "contact":
       return "#/contact";
-    case "account":
-      return "#/account";
-    case "cart":
-      return "#/cart";
-    case "checkout":
-      return "#/checkout";
     case "notfound":
       return "#/notfound";
     default:
@@ -97,10 +77,6 @@ function pathFor(page, params = {}) {
 }
 
 function StoreAppInner({ storeId }) {
-  usePayments();
-  const cart = useCart();
-  const auth = useAuth();
-  const orders = useOrders();
   const [route, setRoute] = useState(parseHash);
   const [search, setSearch] = useState("");
 
@@ -120,7 +96,7 @@ function StoreAppInner({ storeId }) {
   };
 
   const renderPage = () => {
-    const props = { navigate, cart, params: route.params, auth, orders, storeId };
+    const props = { navigate, params: route.params, storeId };
     switch (route.page) {
       case "shop":
         return <StorePage {...props} />;
@@ -136,12 +112,6 @@ function StoreAppInner({ storeId }) {
         return <AboutPage {...props} />;
       case "contact":
         return <ContactPage {...props} />;
-      case "cart":
-        return <CartPage {...props} />;
-      case "checkout":
-        return <CheckoutPage {...props} />;
-      case "account":
-        return <AccountPage {...props} />;
       case "notfound":
         return <NotFoundPage {...props} />;
       case "home":
@@ -181,26 +151,6 @@ function StoreAppInner({ storeId }) {
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSearch()}
         />
-        <button
-          className="sa-account-btn"
-          title={auth.user ? "Mi cuenta" : "Iniciar sesión"}
-          onClick={() => navigate("account")}
-        >
-          {auth.user ? (
-            <span className="sa-avatar sm">
-              {auth.user.avatar ? (
-                <img className="sa-avatar-img" src={auth.user.avatar} alt="" />
-              ) : (
-                auth.user.name.charAt(0)
-              )}
-            </span>
-          ) : (
-            "Cuenta"
-          )}
-        </button>
-        <button className="sa-cart-btn" onClick={() => navigate("cart")}>
-          Carrito {cart.count > 0 && <span className="sa-cart-count">{cart.count}</span>}
-        </button>
       </div>
 
       <div className="sa-content">{renderPage()}</div>

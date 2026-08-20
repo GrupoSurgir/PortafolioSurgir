@@ -12,7 +12,7 @@ export function StatusPill({ status }) {
   return <span className={`sa-pill ${cls}`}>{status}</span>;
 }
 
-export function ProductCard({ p, onOpen, onAdd }) {
+export function ProductCard({ p, onOpen }) {
   const unavailable = p.status === "Próximamente" || p.status === "En preparación";
   const free = p.price === 0;
   return (
@@ -30,10 +30,10 @@ export function ProductCard({ p, onOpen, onAdd }) {
         disabled={unavailable}
         onClick={(e) => {
           e.stopPropagation();
-          onAdd(p.slug);
+          onOpen(p.slug);
         }}
       >
-        {unavailable ? "Próximamente" : free ? "Agregar al carrito · $0" : "Agregar al carrito"}
+        {unavailable ? "Próximamente" : free ? "Descargar gratis" : "Ver producto"}
       </button>
     </div>
   );

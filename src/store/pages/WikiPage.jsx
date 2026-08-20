@@ -1,4 +1,5 @@
 import { productBySlug } from "../../data/products.js";
+import { hasDownload } from "../downloads.js";
 
 function Block({ title, children }) {
   return (
@@ -9,7 +10,7 @@ function Block({ title, children }) {
   );
 }
 
-export default function WikiPage({ navigate, params, cart, orders, auth }) {
+export default function WikiPage({ navigate, params }) {
   const p = productBySlug(params.slug);
 
   if (!p || !p.wiki) {
@@ -23,7 +24,7 @@ export default function WikiPage({ navigate, params, cart, orders, auth }) {
     );
   }
 
-  const hasDownload = orders.hasDownload(p.slug);
+  const hasDl = hasDownload(p.slug);
   const w = p.wiki;
 
   return (
@@ -128,7 +129,7 @@ export default function WikiPage({ navigate, params, cart, orders, auth }) {
       </Block>
 
       <Block title="Obtener {p.name}">
-        {hasDownload ? (
+        {hasDl ? (
           <>
             <a
               className="sa-btn accent block sa-download"
@@ -138,7 +139,7 @@ export default function WikiPage({ navigate, params, cart, orders, auth }) {
               ⬇ Descargar {p.name} v{p.version}
             </a>
             <p className="sa-muted" style={{ fontSize: 12, marginTop: 8 }}>
-              Ya tienes acceso: lo obtuviste en un pedido confirmado.
+              Ya tienes acceso: activaste la descarga con tu correo.
             </p>
           </>
         ) : (
@@ -147,9 +148,7 @@ export default function WikiPage({ navigate, params, cart, orders, auth }) {
               Obtener gratis (0 pesos)
             </button>
             <p className="sa-muted" style={{ fontSize: 12, marginTop: 8 }}>
-              {auth.user
-                ? "Añádelo al carrito y confirma el pedido para desbloquear la descarga."
-                : "Inicia sesión y confirma el pedido para desbloquear la descarga."}
+              Deja tu correo en la ficha del producto para activar la descarga.
             </p>
           </>
         )}

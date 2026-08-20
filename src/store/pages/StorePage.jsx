@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { products, categories, categoryName } from "../../data/products.js";
 import { ProductCard } from "../ui.jsx";
 
-export default function StorePage({ navigate, cart, params }) {
+export default function StorePage({ navigate, params }) {
   const [selected, setSelected] = useState(params.category || "all");
   const [q, setQ] = useState(params.q || "");
 
@@ -65,7 +65,6 @@ export default function StorePage({ navigate, cart, params }) {
               key={p.slug}
               p={p}
               onOpen={(s) => navigate("product", { slug: s })}
-              onAdd={cart.add}
             />
           ))}
         </div>

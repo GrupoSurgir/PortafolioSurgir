@@ -54,29 +54,23 @@ src/
     services.js               Servicios
     projects.js               Portafolio de proyectos
     site.js                   Marca y contacto
-    auth.js                   Config OAuth (publica) + modo demo/real
     workspaces.js             Mesas/tiendas del espacio 3D
   store/
     StoreApp.jsx              Shell (nav, buscador, footer, routing por hash)
     store.css                 CSS de la interfaz
     ui.jsx                    StatusPill, ProductCard, SectionHeader
-    payments.js               Configuración de métodos de pago
+    downloads.js              Descargas gratis por correo (localStorage)
+    payments.js               Configuración de métodos de pago (admin)
     PaymentsContext.jsx       Contexto global de pagos
-    PaymentMethods.jsx        Interfaz de métodos de pago
-    AuthContext.jsx           Sesión (demo localStorage / OAuth real)
-    OrdersContext.jsx         Pedidos (localStorage; backend más adelante)
     pages/                    Home, Store, ProductDetail, Wiki, Services,
-                              Projects, About, Contact, Cart, Checkout,
-                              Account, NotFound
-  hooks/
-    useCart.jsx               Carrito global (localStorage "surgir-cart")
+                              Projects, About, Contact, NotFound
   components/
     AudioEngine.js            Motor de audio (WebAudio, ambientes)
     ExperienceGuide.jsx       Guía de bienvenida de la experiencia
     DragGestureIndicator.jsx  Indicador de interacción
     AdminPanel.jsx            Panel de configuración (engranaje ⚙)
 netlify/
-  functions/auth.js           OAuth2 Google/Discord + sesión en cookie HttpOnly
+  functions/auth.js           OAuth2 preparado para el futuro (no usado hoy)
 public/
   logo.png                    Favicon y logo proyectado en el boot
   downloads/                  Archivos descargables (productos digitales)
@@ -94,7 +88,7 @@ Todo el contenido vive en `src/data/`:
     slug: "surgir-entregas",
     name: "SurgirEntregas",
     category: "plugins",
-    price: 0,                 // 0 = gratuito (flujo carrito → checkout → pedido)
+    price: 0,                 // 0 = gratuito (descarga por correo)
     status: "Disponible",
     featured: true,
     version: "1.0.0",
@@ -125,44 +119,31 @@ Todo el contenido vive en `src/data/`:
 3. `npm run build` y `git push` → Netlify despliega solo.
 4. Para cobrar, configura pagos en el engranaje ⚙ → Administración → Pagos.
 
-## Flujo del producto gratuito (SurgirEntregas)
+## Flujo de descarga gratis (SurgirEntregas)
 
 ```text
-Producto → Añadir al carrito → Carrito → Checkout (Total $0)
-        → Inicia sesión (Google/Discord) → Confirmar
-        → Pedido creado (completed) → Descarga desbloqueada → Wiki
+Ficha del producto → escribir correo → Activar descarga → botón de descarga → Wiki
 ```
 
-Los pedidos se registran en `OrdersContext` (localStorage) con la estructura
-definitiva (`orderId`, `userId`, `email`, `items`, `total`, `status`,
-`createdAt`). Cuando exista backend, se crearán en el servidor.
+El usuario solo deja su correo electrónico y se desbloquea la descarga. La
+concesión se guarda localmente en `src/store/downloads.js` (localStorage,
+`hasDownload` / `grantDownload`). Cuando exista backend, el enlace también se
+enviará por correo desde el servidor; la UI ya está preparada para ese momento.
 
-## Cuenta: Google / Discord (OAuth2)
+## Cuenta / autenticación
 
-- **Modo demo (por defecto, `VITE_AUTH_DEMO=true`):** la sesión se simula en
-  localStorage. Sirve para desarrollo local y pruebas del flujo.
-- **Modo real (`VITE_AUTH_DEMO=false`):** el frontend redirige a la Netlify
-  Function `netlify/functions/auth.js`, que hace el intercambio OAuth
-  (authorization code) y crea una **cookie HttpOnly firmada** con
-  `SESSION_SECRET`. El frontend nunca ve tokens ni secretos.
-- Configuración: crea las apps OAuth en Google
-  (`https://console.cloud.google.com/apis/credentials`) y Discord
-  (`https://discord.com/developers/applications`); registra la redirect URI de
-  tu dominio; define las variables en Netlify (ver `.env.example`).
+El flujo actual **no usa cuentas**: no hay registro, login ni panel de usuario.
+La web solo pide el correo para activar la descarga y en la sección Contacto.
+Se conserva `netlify/functions/auth.js` como **preparación para el futuro**
+(OAuth2 Google/Discord), inactiva hoy. No subir secretos al repositorio.
 
 ## Variables de entorno
 
 Ver `.env.example`:
 
 ```text
-VITE_AUTH_DEMO=true|false
-VITE_GOOGLE_CLIENT_ID / VITE_GOOGLE_REDIRECT_URI
-VITE_DISCORD_CLIENT_ID / VITE_DISCORD_REDIRECT_URI
-GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / GOOGLE_REDIRECT_URI
-DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET / DISCORD_REDIRECT_URI
-SESSION_SECRET
-AUTH_SUCCESS_URL
-VITE_CONTACT_ENDPOINT
+VITE_CONTACT_ENDPOINT=            # backend opcional del formulario de contacto
+# (preparadas, no usadas hoy) OAuth y envío de correo
 ```
 
 **Nunca subir secretos al repositorio.** Los secretos viven solo como variables
@@ -173,16 +154,16 @@ de entorno de Netlify.
 `src/store/payments.js` define los métodos (PSE, Nequi, tarjeta, transferencia)
 y su estado. La configuración se edita desde el panel de administración
 (engranaje ⚙ → Pagos) y se guarda en `localStorage` (configuración local del
-navegador, no es un CMS real). No hay pasarela conectada: los productos de pago
-registran el pedido como **pending** y no se cobra nada. La arquitectura permite
-conectar Stripe / Mercado Pago / PayPal más adelante.
+navegador, no es un CMS real). No hay pasarela conectada ni flujo de pago en la
+web actual: el catálogo solo tiene productos gratuitos (SurgirEntregas). La
+arquitectura permite conectar Stripe / Mercado Pago / PayPal más adelante.
 
 ## Routing y 404
 
 La aplicación usa **routing por hash** (`/#/store`, `/#/product/surgir-entregas`,
-`/#/wiki/surgir-entregas`, `/#/account`, `/#/cart`, `/#/checkout`, …). Las URLs
-funcionan al recargar gracias al SPA fallback (`public/_redirects`). Rutas
-desconocidas muestran la página **404** con enlaces a Inicio / Tienda / Proyectos.
+`/#/wiki/surgir-entregas`, `/#/contact`, …). Las URLs funcionan al recargar
+gracias al SPA fallback (`public/_redirects`). Rutas desconocidas muestran la
+página **404** con enlaces a Inicio / Tienda / Proyectos.
 
 ## Despliegue (Netlify)
 

@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { productBySlug, categoryName } from "../../data/products.js";
 import { StatusPill } from "../ui.jsx";
+import { hasDownload, grantDownload, getLastEmail } from "../downloads.js";
 
-export default function ProductDetailPage({ navigate, cart, params, auth, orders }) {
+export default function ProductDetailPage({ navigate, params }) {
   const p = productBySlug(params.slug);
-  const [qty, setQty] = useState(1);
+  const [email, setEmail] = useState(getLastEmail());
+  const [error, setError] = useState("");
+  const [justGranted, setJustGranted] = useState(false);
 
   if (!p) {
     return (
@@ -17,15 +20,24 @@ export default function ProductDetailPage({ navigate, cart, params, auth, orders
     );
   }
 
-  const unavailable = p.status === "Próximamente" || p.status === "En preparación";
   const free = p.price === 0;
-  const hasDownload = orders?.hasDownload(p.slug);
+  const unlocked = hasDownload(p.slug) || justGranted;
+
+  const activate = () => {
+    const value = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
+      setError("Escribe un correo electrónico válido.");
+      return;
+    }
+    setError("");
+    grantDownload(p.slug, value);
+    setJustGranted(true);
+  };
 
   const links = [];
   if (p.wiki) links.push({ label: "Wiki / Documentación", action: () => navigate("wiki", { slug: p.slug }) });
   if (p.documentationUrl) links.push({ label: "Documentación", href: p.documentationUrl });
   if (p.repositoryUrl) links.push({ label: "Repositorio", href: p.repositoryUrl });
-  if (p.purchaseUrl) links.push({ label: "Comprar", href: p.purchaseUrl });
 
   return (
     <div className="sa-wrap">
@@ -138,45 +150,59 @@ export default function ProductDetailPage({ navigate, cart, params, auth, orders
 
           <div className="sa-price-lg">{free ? "Gratis · $0" : `$${p.price}`}</div>
 
-          {hasDownload ? (
-            <a
-              className="sa-btn accent block sa-download"
-              href={p.downloadUrl}
-              download
-            >
-              ⬇ Descargar {p.name} v{p.version}
-            </a>
+          {unlocked ? (
+            <div className="sa-grant">
+              <div className="sa-name-lg" style={{ fontSize: 16 }}>
+                Descarga activada
+              </div>
+              <p className="sa-mini" style={{ margin: "4px 0 12px" }}>
+                Gracias. Tu descarga está disponible:
+              </p>
+              <a
+                className="sa-btn accent block sa-download"
+                href={p.downloadUrl}
+                download
+              >
+                ⬇ Descargar {p.name} v{p.version}
+              </a>
+              <p className="sa-muted" style={{ fontSize: 12, marginTop: 8 }}>
+                Guarda el archivo. También puedes abrir la Wiki para ver
+                instalación, comandos y permisos.
+              </p>
+            </div>
           ) : (
-            <>
-              {!free && (
-                <div className="sa-qty">
-                  <button onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
-                  <span>{qty}</span>
-                  <button onClick={() => setQty((q) => q + 1)}>+</button>
+            <div className="sa-grant">
+              <div className="sa-name-lg" style={{ fontSize: 16 }}>
+                Descarga gratis
+              </div>
+              <p className="sa-mini" style={{ margin: "4px 0 10px" }}>
+                Deja tu correo electrónico y se activa la descarga de{" "}
+                {p.name}.
+              </p>
+              <label className="sa-label" htmlFor="dl-email">
+                Correo electrónico
+              </label>
+              <input
+                id="dl-email"
+                className="sa-input"
+                type="email"
+                placeholder="tu@correo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              {error && (
+                <div className="sa-msg err" style={{ marginTop: 8 }}>
+                  {error}
                 </div>
               )}
-
-              <button
-                className="sa-btn accent block"
-                disabled={unavailable}
-                onClick={() => {
-                  cart.add(p.slug, qty);
-                  navigate("cart");
-                }}
-              >
-                {unavailable
-                  ? "Próximamente"
-                  : free
-                  ? "Agregar al carrito · $0"
-                  : "Agregar al carrito"}
+              <button className="sa-btn accent block" onClick={activate}>
+                Activar descarga
               </button>
-
-              <p className="sa-muted" style={{ fontSize: 12, marginTop: 8 }}>
-                {free
-                  ? "Gratis: añádelo al carrito, confirma el pedido con tu cuenta y la descarga se desbloquea aquí."
-                  : "Pago: registra tu pedido; la pasarela se activará próximamente."}
+              <p className="sa-muted" style={{ fontSize: 12, marginTop: 10 }}>
+                No se enviará correo automáticamente todavía. Al conectar el
+                backend, el enlace de descarga también llegará a tu correo.
               </p>
-            </>
+            </div>
           )}
 
           {links.length > 0 && (

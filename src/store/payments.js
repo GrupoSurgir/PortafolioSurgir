@@ -10,8 +10,8 @@
 //   sensibles de pago. El proveedor de pagos es dueño de esa información; SURGIR
 //   solo recibe el resultado de la transacción.
 //
-// FLUJO ESPERADO (cuando exista backend):
-//   Catálogo -> Carrito -> Checkout -> Proveedor de pago -> Resultado -> SURGIR
+// FLUJO ESPERADO (cuando exista backend y pasarela):
+//   Producto -> Checkout -> Proveedor de pago -> Resultado
 //   LATAM: Proveedor regional -> tarjetas + métodos locales del país
 //   EXTERIOR: PayPal
 //
