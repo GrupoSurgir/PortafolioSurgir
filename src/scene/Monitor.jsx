@@ -424,12 +424,13 @@ export default function Monitor({ pcRef, poweredOn, isPoweringOn, isPoweringOff,
     // El PC ya está ENCENDIDO: entra directamente a la web, sin repetir el boot.
     if (poweredOn) {
       // PC already powered on: directly enter, no boot sequence
+      // Animation is faster on re-entry
       if (screenMeshRef.current && grpRef.current && pcRef.current.startEnter) {
         const pos = new THREE.Vector3();
         const quat = new THREE.Quaternion();
         if (screenMeshRef.current) screenMeshRef.current.getWorldPosition(pos);
         if (grpRef.current) grpRef.current.getWorldQuaternion(quat);
-        pcRef.current.startEnter(pos, quat);
+        pcRef.current.startEnter(pos, quat, { fast: true });
       }
       return;
     }

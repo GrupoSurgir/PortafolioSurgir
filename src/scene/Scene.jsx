@@ -53,7 +53,7 @@ function CameraControls({ pcRef }) {
   // la pantalla (el lado donde se proyectó la animación de arranque) y luego
   // se sumerge recto A TRAVÉS del vidrio. Así entra por el lado de la animación
   // y no "da la vuelta" rodeando el PC.
-  pcRef.current.startEnter = (monitorPos, monitorQuat) => {
+  pcRef.current.startEnter = (monitorPos, monitorQuat, options = {}) => {
     const pc = pcRef.current;
     const forward = new THREE.Vector3(0, 0, 1)
       .applyQuaternion(monitorQuat)
@@ -74,8 +74,10 @@ function CameraControls({ pcRef }) {
       : center.clone();
     pc.enterTarget = center.clone();
     pc.enterElapsed = 0;
-    pc.enterSeg1 = 0.35; // encuadre al frente
-    pc.enterSeg2 = 0.8; // inmersión recta
+    // Modo rápido para re-entradas (sin el boot completo)
+    const fast = options.fast === true;
+    pc.enterSeg1 = fast ? 0.15 : 0.35; // encuadre al frente (rápido: 0.15, normal: 0.35)
+    pc.enterSeg2 = fast ? 0.4 : 0.8; // inmersión recta (rápido: 0.4, normal: 0.8)
     pc.enterDuration = pc.enterSeg1 + pc.enterSeg2;
     pc.enterCalled = false;
     pc.state = "enter";
