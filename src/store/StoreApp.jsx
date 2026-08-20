@@ -10,13 +10,10 @@ import ContactPage from "./pages/ContactPage.jsx";
 import WikiPage from "./pages/WikiPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
+import { webView } from "./webView.js";
 import "./store.css";
 
 const THEME_KEY = "surgir-theme";
-
-// Scroll de la app conservado entre sesiones de pantalla completa: al volver a
-// la experiencia 3D se guarda y al reabrir la app se restaura (misma ruta).
-let savedAppScroll = 0;
 
 // El resto de secciones vive dentro de "Categorías" (mismo concepto en PC y móvil).
 const CATEGORIES = [
@@ -102,6 +99,7 @@ function StoreAppInner({ storeId, onExit }) {
   // Panel "Categorías" (se cierra al pulsar fuera / Escape).
   const [catMenu, setCatMenu] = useState(false);
   const catRef = useRef(null);
+  const appRef = useRef(null);
   // Preferencia de apariencia: "system" | "light" | "dark" (persistida).
   const [theme, setTheme] = useState(
     () => localStorage.getItem(THEME_KEY) || "system"
@@ -121,14 +119,24 @@ function StoreAppInner({ storeId, onExit }) {
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
-  // Restaurar el scroll de la sesión anterior al reabrir la app; guardarlo al
-  // salir a la experiencia 3D (misma ruta conservada por hash).
+  // Sincronizar el scroll con la otra instancia (la del monitor del PC 3D). Al
+  // desplazarse se guarda en webView.scrollY; al montar (re-entrada) y cuando el
+  // monitor queda visible ("surgir:web-visible") se aplica ese scroll.
   useEffect(() => {
-    const app = document.querySelector(".surgir-app");
-    if (app) app.scrollTop = savedAppScroll;
+    const app = appRef.current;
+    if (!app) return;
+    const onScroll = () => {
+      webView.scrollY = app.scrollTop;
+    };
+    const onVisible = () => {
+      app.scrollTop = webView.scrollY;
+    };
+    app.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("surgir:web-visible", onVisible);
+    app.scrollTop = webView.scrollY;
     return () => {
-      const a = document.querySelector(".surgir-app");
-      if (a) savedAppScroll = a.scrollTop;
+      app.removeEventListener("scroll", onScroll);
+      window.removeEventListener("surgir:web-visible", onVisible);
     };
   }, []);
 
@@ -166,8 +174,7 @@ function StoreAppInner({ storeId, onExit }) {
     const hash = pathFor(page, params);
     if (window.location.hash === hash) setRoute(parseHash());
     else window.location.hash = hash;
-    const app = document.querySelector(".surgir-app");
-    if (app) app.scrollTop = 0;
+    if (appRef.current) appRef.current.scrollTop = 0;
   };
 
   const go = (page, params = {}) => {
@@ -218,7 +225,7 @@ function StoreAppInner({ storeId, onExit }) {
   };
 
   return (
-    <div className="surgir-app" data-theme={effectiveTheme}>
+    <div className="surgir-app" data-theme={effectiveTheme} ref={appRef}>
       <div className="sa-nav">
         <div className="sa-nav-left">
           <button className="sa-nav-back" onClick={goBack} aria-label="Regresar a la experiencia 3D">

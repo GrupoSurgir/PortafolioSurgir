@@ -3,6 +3,7 @@ import ExperienceGuide from "./components/ExperienceGuide.jsx";
 import DragGestureIndicator from "./components/DragGestureIndicator.jsx";
 import AdminPanel from "./components/AdminPanel.jsx";
 import StoreApp from "./store/StoreApp.jsx";
+import { notifyWebVisible } from "./store/webView.js";
 import { PaymentsProvider } from "./store/PaymentsContext.jsx";
 import { useAmbientAudio } from "./components/AudioEngine.js";
 import { computeWake } from "./wake.js";
@@ -98,6 +99,8 @@ export default function App() {
   const returnToSpace = () => {
     if (pcRef.current.resetView) pcRef.current.resetView();
     setPhase("space");
+    // La instancia de StoreApp del monitor aplica el último scroll guardado.
+    notifyWebVisible();
   };
 
   useEffect(() => {

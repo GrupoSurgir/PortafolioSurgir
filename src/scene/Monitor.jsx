@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import MonitorWeb from "./MonitorWeb.jsx";
+import StoreApp from "../store/StoreApp.jsx";
 
 // Monitor de SURGIR — PC futurista en el espacio profundo.
 //
@@ -35,7 +35,7 @@ function smooth(a, b, x) {
   return t * t * (3 - 2 * t);
 }
 
-export default function Monitor({ pcRef }) {
+export default function Monitor({ pcRef, storeId = "surgir" }) {
   const canvas = useMemo(() => {
     const c = document.createElement("canvas");
     c.width = W;
@@ -354,13 +354,14 @@ export default function Monitor({ pcRef }) {
         />
       </mesh>
 
-      {/* Vista previa ligera de la última página web sobre la pantalla, SOLO tras
-          el boot (nunca antes de interactuar). NO es interactiva: pointerEvents
-          none deja que el click del monitor llegue al panel y reabra la app. */}
+      {/* La MISMA StoreApp de la aplicación, proyectada en la pantalla tras el boot
+          (el mecanismo que ya mostraba Inicio). Comparte el hash (ruta real) y
+          webView.scrollY, así que representa la ÚLTIMA vista del usuario. NO es
+          interactiva (pointerEvents:none): el click llega al panel y reabre la
+          app a pantalla completa en esa misma vista. */}
       {revealed && (
         <Html
           transform
-          occlude
           position={[0, 1.14, 0.024]}
           scale={0.00075}
           style={{
@@ -372,7 +373,7 @@ export default function Monitor({ pcRef }) {
           }}
         >
           <div className="monitor-web">
-            <MonitorWeb />
+            <StoreApp storeId={storeId} />
           </div>
         </Html>
       )}

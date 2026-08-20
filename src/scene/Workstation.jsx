@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import Monitor from "./Monitor.jsx";
+import Chair from "./Chair.jsx";
 
 // Estación de trabajo: escritorio + PC + teclado + mouse + monitor.
 // Materiales grises medios (no negros) para que la lámpara cenital los
@@ -85,6 +86,9 @@ export default function Workstation({
         <boxGeometry args={[0.06, 0.025, 0.1]} />
         <meshStandardMaterial color="#272932" roughness={0.6} metalness={0.12} />
       </mesh>
+
+      {/* ---------- SILLA (frente al escritorio, alineada con monitor/PC) ---------- */}
+      <Chair position={[0, 0, 0.92]} />
 
       {/* Luz tenue del gabinete (relleno local, independiente de la pantalla). */}
       <pointLight
