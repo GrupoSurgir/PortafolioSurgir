@@ -826,7 +826,7 @@
   }
 }
 @media (max-width: 480px) {
-  .sa-search {
+  .sa-nav > .sa-search {
     display: none;
   }
   .sa-nav {
@@ -1105,6 +1105,210 @@
   border-radius: 14px;
   padding: 18px;
   margin-top: 18px;
+}
+
+/* ---------- Navegación móvil: menú hamburguesa ----------
+   Desktop: el botón y el panel permanecen ocultos (display:none).
+   Mobile/tablet (<=860px): la barra muestra ☰ + marca + Contacto y el
+   panel deslizante organiza Inicio / SurgirStudio / Contacto / Categorías. */
+.sa-burger {
+  display: none;
+}
+.sa-mobile-contact {
+  display: none;
+}
+.sa-mmenu {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .sa-links,
+  .sa-nav > .sa-search {
+    display: none;
+  }
+  .sa-burger {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 42px;
+    height: 42px;
+    padding: 0 9px;
+    background: transparent;
+    border: 1px solid rgba(148, 180, 220, 0.22);
+    border-radius: 10px;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .sa-burger span {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: #9fe9ff;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+  }
+  .sa-burger.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .sa-burger.open span:nth-child(2) {
+    opacity: 0;
+  }
+  .sa-burger.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+  .sa-nav {
+    gap: 10px;
+    padding: 0 10px;
+    height: 54px;
+  }
+  .sa-logo {
+    letter-spacing: 2px;
+    font-size: 13px;
+  }
+  .sa-mobile-contact {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    background: rgba(127, 233, 255, 0.08);
+    border: 1px solid rgba(127, 233, 255, 0.22);
+    color: #b8e8f5;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .sa-mobile-contact:active {
+    background: rgba(127, 233, 255, 0.18);
+  }
+
+  .sa-mmenu {
+    display: block;
+    position: fixed;
+    top: 54px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: rgba(5, 8, 14, 0.82);
+    backdrop-filter: blur(10px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    animation: mmenuIn 0.22s ease both;
+  }
+  .sa-mmenu.leaving {
+    animation: mmenuOut 0.18s ease both;
+  }
+  @keyframes mmenuIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes mmenuOut {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+  .sa-mmenu-inner {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 14px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .sa-mmenu-search input {
+    width: 100%;
+    max-width: none;
+  }
+  .sa-mmenu-group {
+    border: 1px solid rgba(148, 180, 220, 0.14);
+    border-radius: 14px;
+    background: rgba(11, 16, 25, 0.9);
+    overflow: hidden;
+  }
+  .sa-mmenu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    min-height: 52px;
+    padding: 0 18px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(148, 180, 220, 0.1);
+    color: #e8effa;
+    font-family: inherit;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sa-mmenu-item:last-child {
+    border-bottom: none;
+  }
+  .sa-mmenu-item:active {
+    background: rgba(127, 233, 255, 0.08);
+  }
+  .sa-mmenu-caret {
+    color: #7fe9ff;
+    font-size: 13px;
+    transition: transform 0.2s ease;
+  }
+  .sa-mmenu-caret.open {
+    transform: rotate(90deg);
+  }
+  .sa-mmenu-sublist {
+    padding: 4px 0;
+  }
+  .sa-mmenu-sub {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 18px 0 30px;
+    background: transparent;
+    border: none;
+    color: #a9b8cc;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sa-mmenu-sub:active {
+    background: rgba(127, 233, 255, 0.08);
+    color: #eaf2ff;
+  }
+  .sa-mmenu-close {
+    align-self: center;
+    min-height: 48px;
+    padding: 0 26px;
+    background: transparent;
+    border: 1px solid rgba(148, 180, 220, 0.25);
+    border-radius: 10px;
+    color: #8494ab;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+  .sa-mmenu-close:active {
+    border-color: #7fe9ff;
+    color: #7fe9ff;
+  }
 }
 
 /* ---------- Checkout / login / pedido / resultado ----------

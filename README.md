@@ -34,6 +34,14 @@ npm run preview          # previsualizar el build
    (`.page-wrap`); **ESC** vuelve al espacio y **rearma el monitor**: un nuevo
    click vuelve a encender el PC y re-entra a la tienda.
 
+### Navegación móvil
+
+En móvil/tablet (≤860px) la barra de la aplicación se convierte en
+**☰ + SURGIR + Contacto**. El botón ☰ se transforma en ✕ y abre un panel con
+**Inicio · SurgirStudio · Contacto** y **Categorías** (Plugins, Recursos,
+Modelos, Packs, Digitales, Servicios, Proyectos) usando las mismas rutas y
+componentes. En desktop/laptop la navegación queda exactamente igual.
+
 ## Estructura
 
 ```text

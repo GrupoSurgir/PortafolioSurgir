@@ -1,10 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { products, categories, categoryName } from "../../data/products.js";
 import { ProductCard } from "../ui.jsx";
 
 export default function StorePage({ navigate, params }) {
   const [selected, setSelected] = useState(params.category || "all");
   const [q, setQ] = useState(params.q || "");
+
+  // Sincronizar filtros cuando llegan por URL (menú mobile / enlaces directos).
+  useEffect(() => {
+    setSelected(params.category || "all");
+    setQ(params.q || "");
+  }, [params.category, params.q]);
 
   const list = useMemo(() => {
     const t = q.trim().toLowerCase();
