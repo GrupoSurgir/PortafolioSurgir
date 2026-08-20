@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { site } from "../../data/site.js";
 
-export default function ContactPage({ navigate }) {
+// Formulario de contacto → Netlify Forms.
+// En producción (Netlify) el envío es REAL: el mensaje queda en el panel de
+// Forms y llega por correo a la notificación configurada en el dashboard.
+// En local NO se simula el envío: se muestra un estado claro.
+
+export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState("idle");
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -16,104 +20,86 @@ export default function ContactPage({ navigate }) {
       setStatus("err");
       return;
     }
-    setStatus("sending");
-    const done = () => setStatus("ok");
-    const fail = () => setStatus("err");
-    if (site.contactEndpoint) {
-      fetch(site.contactEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      })
-        .then((r) => (r.ok ? done() : fail()))
-        .catch(fail);
-    } else {
-      // Sin endpoint configurado: NO se simula un envío real. Se muestra un
-      // estado claro de "preparado" hasta conectar el backend.
-      setTimeout(() => setStatus("demo"), 500);
+    const host = window.location.hostname;
+    if (host === "localhost" || host === "127.0.0.1") {
+      setStatus("demo");
+      return;
     }
+    setStatus("sending");
+    const body = new URLSearchParams({
+      "form-name": "contact",
+      "bot-field": "",
+      name: form.name,
+      email: form.email,
+      subject: form.subject,
+      message: form.message,
+    });
+    fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    })
+      .then((r) => setStatus(r.ok ? "ok" : "err"))
+      .catch(() => setStatus("err"));
   };
 
   return (
-    <div className="sa-wrap">
+    <div className="sa-wrap" style={{ maxWidth: 640 }}>
       <h1 className="sa-h1">Contacto</h1>
       <p className="sa-lead">
         Escríbenos para solicitar un desarrollo, consultar productos o resolver
         dudas.
       </p>
 
-      <div className="sa-contact" style={{ marginTop: 20 }}>
-        <form onSubmit={submit}>
-          <label>Nombre</label>
-          <input className="sa-input" value={form.name} onChange={set("name")} />
-          <label>Correo</label>
-          <input
-            className="sa-input"
-            type="email"
-            value={form.email}
-            onChange={set("email")}
-          />
-          <label>Asunto</label>
-          <input
-            className="sa-input"
-            value={form.subject}
-            onChange={set("subject")}
-          />
-          <label>Mensaje</label>
-          <textarea
-            className="sa-area"
-            value={form.message}
-            onChange={set("message")}
-          />
-          <button
-            className="sa-btn accent block"
-            type="submit"
-            disabled={status === "sending"}
-          >
-            {status === "sending" ? "Enviando..." : "Enviar mensaje"}
-          </button>
-          {status === "ok" && (
-            <div className="sa-msg ok">
-              Mensaje enviado. Te responderemos pronto.
-            </div>
-          )}
-          {status === "demo" && (
-            <div className="sa-msg">
-              Formulario validado y preparado, pero el envío real aún no está
-              conectado. Configura <code>VITE_CONTACT_ENDPOINT</code> (backend)
-              para activarlo.
-            </div>
-          )}
-          {status === "err" && (
-            <div className="sa-msg err">
-              No se pudo enviar. Revisa nombre, correo y mensaje.
-            </div>
-          )}
-        </form>
-
-        <div>
-          <h2 className="sa-h2">Canales</h2>
-          <div className="sa-channels">
-            {site.contactChannels.map((c) =>
-              c.href ? (
-                <a key={c.id} className="sa-channel" href={c.href}>
-                  <span className="sa-channel-label">{c.label}</span>
-                  <span className="sa-channel-value">{c.value}</span>
-                </a>
-              ) : (
-                <div key={c.id} className="sa-channel">
-                  <span className="sa-channel-label">{c.label}</span>
-                  <span className="sa-channel-value">{c.value}</span>
-                </div>
-              )
-            )}
+      <form
+        className="sa-form"
+        style={{ marginTop: 20 }}
+        name="contact"
+        data-netlify="true"
+        data-netlify-honeypot="bot-field"
+        onSubmit={submit}
+      >
+        <label>Nombre</label>
+        <input className="sa-input" value={form.name} onChange={set("name")} />
+        <label>Correo</label>
+        <input
+          className="sa-input"
+          type="email"
+          value={form.email}
+          onChange={set("email")}
+        />
+        <label>Asunto</label>
+        <input className="sa-input" value={form.subject} onChange={set("subject")} />
+        <label>Mensaje</label>
+        <textarea
+          className="sa-area"
+          value={form.message}
+          onChange={set("message")}
+        />
+        <button
+          className="sa-btn accent block"
+          type="submit"
+          disabled={status === "sending"}
+        >
+          {status === "sending" ? "Enviando..." : "Enviar mensaje"}
+        </button>
+        {status === "ok" && (
+          <div className="sa-msg ok">
+            Mensaje enviado. Gracias, te responderemos pronto.
           </div>
-          <p className="sa-muted" style={{ marginTop: 14, fontSize: 12 }}>
-            Canales configurables en <code>src/data/site.js</code>. Los canales
-            marcados como "(próximamente)" aún no están activos.
-          </p>
-        </div>
-      </div>
+        )}
+        {status === "demo" && (
+          <div className="sa-msg">
+            En local no se envía el mensaje. Despliega en Netlify y configura en
+            el panel la notificación por correo para recibir los mensajes.
+          </div>
+        )}
+        {status === "err" && (
+          <div className="sa-msg err">
+            No se pudo enviar. Revisa nombre, correo y mensaje.
+          </div>
+        )}
+      </form>
     </div>
   );
 }

@@ -130,6 +130,19 @@ concesión se guarda localmente en `src/store/downloads.js` (localStorage,
 `hasDownload` / `grantDownload`). Cuando exista backend, el enlace también se
 enviará por correo desde el servidor; la UI ya está preparada para ese momento.
 
+## Contacto (Netlify Forms)
+
+La página **Contacto** solo tiene el formulario (sin canales). En Netlify el
+envío es real: el formulario `contact` se registra automáticamente en **Netlify
+Forms** (hay un form de referencia oculto en `index.html` para que el build lo
+detecte). Para recibir los mensajes en tu correo:
+
+1. Despliega el sitio en Netlify.
+2. Ve a **Site settings → Forms → Form notifications → Add notification → Email**.
+3. Escribe tu correo (ej. `samuelburitica681@gmail.com`).
+4. Los mensajes del formulario llegarán a ese correo. En local (dev) el envío
+   no se simula: se muestra el estado "preparado".
+
 ## Cuenta / autenticación
 
 El flujo actual **no usa cuentas**: no hay registro, login ni panel de usuario.
@@ -139,12 +152,9 @@ Se conserva `netlify/functions/auth.js` como **preparación para el futuro**
 
 ## Variables de entorno
 
-Ver `.env.example`:
-
-```text
-VITE_CONTACT_ENDPOINT=            # backend opcional del formulario de contacto
-# (preparadas, no usadas hoy) OAuth y envío de correo
-```
+Ver `.env.example`. El flujo actual **no requiere variables**: la descarga por
+correo se guarda en localStorage y el formulario de Contacto usa **Netlify
+Forms** (sin backend propio).
 
 **Nunca subir secretos al repositorio.** Los secretos viven solo como variables
 de entorno de Netlify.
