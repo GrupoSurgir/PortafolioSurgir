@@ -1,0 +1,445 @@
+/* ============================================================
+   WORKPLACE BUILDER — estilos scoped a la página (dentro de
+   .surgir-app). El Builder ocupa todo el viewport de la app y
+   organiza: barra superior / escena 3D / categorías / catálogo.
+   ============================================================ */
+
+/* El Builder ocupa el área completa entre la barra de navegación y el pie. */
+.surgir-app:has(.wb) .sa-content {
+  padding: 0;
+}
+
+.wb {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+  background: var(--sa-bg);
+  color: var(--sa-text);
+  position: relative;
+  overflow: hidden;
+}
+
+.wb-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--sa-border);
+  background: var(--sa-bar);
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+}
+
+.wb-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--sa-strong);
+}
+
+.wb-top-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.wb-quality {
+  width: auto;
+  max-width: 160px;
+}
+
+.wb-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #0a0e1c;
+}
+
+.wb-hud {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  font-size: 11px;
+  color: #8fa0b4;
+  background: rgba(8, 12, 20, 0.75);
+  padding: 6px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+.wb-hud-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22d3ee;
+  margin-right: 6px;
+}
+
+.wb-cats {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  overflow-x: auto;
+  flex: 0 0 auto;
+  border-top: 1px solid var(--sa-border);
+  background: var(--sa-surface);
+}
+
+.wb-cat {
+  border: 1px solid var(--sa-border-2);
+  background: transparent;
+  color: var(--sa-text);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.wb-cat:hover {
+  border-color: var(--sa-accent);
+  color: var(--sa-strong);
+}
+
+.wb-cat.active {
+  background: var(--sa-accent-soft);
+  border-color: var(--sa-accent);
+  color: var(--sa-accent);
+}
+
+.wb-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 10px;
+  padding: 12px 14px;
+  overflow-y: auto;
+  flex: 0 0 auto;
+  max-height: 40%;
+  background: var(--sa-surface-2);
+  border-top: 1px solid var(--sa-border);
+}
+
+.wb-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border: 1px solid var(--sa-border);
+  border-radius: 10px;
+  background: var(--sa-surface);
+  color: var(--sa-text);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.wb-item:hover {
+  border-color: var(--sa-accent);
+  transform: translateY(-1px);
+}
+
+.wb-item.active {
+  border-color: var(--sa-accent);
+  box-shadow: 0 0 0 1px var(--sa-accent), 0 0 14px var(--sa-accent-glow);
+}
+
+.wb-item.installed {
+  background: var(--sa-accent-soft);
+}
+
+.wb-item-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.wb-item-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sa-strong);
+}
+
+.wb-item-price {
+  font-size: 11px;
+  color: var(--sa-muted);
+}
+
+.wb-item-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--sa-accent-soft);
+  border: 1px solid var(--sa-accent);
+  color: var(--sa-accent);
+}
+
+.wb-preview {
+  position: absolute;
+  right: 16px;
+  top: 70px;
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  background: var(--sa-surface);
+  border: 1px solid var(--sa-border-2);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  z-index: 10;
+}
+
+.wb-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--sa-muted);
+  margin-bottom: 10px;
+}
+
+.wb-btn-x {
+  background: transparent;
+  border: 1px solid var(--sa-border-2);
+  color: var(--sa-muted);
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.wb-btn-x:hover {
+  color: var(--sa-strong);
+  border-color: var(--sa-accent);
+}
+
+.wb-preview-main {
+  display: flex;
+  gap: 12px;
+}
+
+.wb-preview-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.wb-preview-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sa-strong);
+}
+
+.wb-preview-desc {
+  font-size: 12px;
+  color: var(--sa-muted);
+  margin: 4px 0 6px;
+  line-height: 1.45;
+}
+
+.wb-preview-price {
+  font-size: 13px;
+  color: var(--sa-accent);
+  font-weight: 700;
+}
+
+.wb-colors {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 8px;
+  flex-wrap: wrap;
+}
+
+.wb-color {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.wb-color:hover {
+  transform: scale(1.12);
+}
+
+.wb-color.active {
+  outline: 2px solid var(--sa-accent);
+  outline-offset: 2px;
+}
+
+.wb-preview-actions,
+.wb-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wb-actions {
+  padding: 12px 14px;
+  flex: 0 0 auto;
+  border-top: 1px solid var(--sa-border);
+  background: var(--sa-bar);
+}
+
+.wb-btn-sm {
+  border: 1px solid var(--sa-border-2);
+  background: transparent;
+  color: var(--sa-text);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wb-btn-sm:hover {
+  border-color: var(--sa-accent);
+  color: var(--sa-strong);
+}
+
+.wb-btn-sm.primary {
+  background: var(--sa-accent);
+  color: var(--sa-ink);
+  border-color: var(--sa-accent);
+  font-weight: 700;
+}
+
+.wb-btn-sm.primary:hover {
+  filter: brightness(1.1);
+}
+
+.wb-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 130px;
+  transform: translateX(-50%);
+  background: rgba(6, 12, 20, 0.94);
+  border: 1px solid rgba(127, 233, 255, 0.45);
+  color: var(--sa-strong);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  z-index: 60;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+/* ---------- Vista estática (instancia del monitor del PC 3D) ---------- */
+.wb-static-page {
+  overflow-y: auto;
+}
+
+.wb-static {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px;
+  text-align: center;
+}
+
+.wb-static-title {
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sa-accent);
+}
+
+.wb-static-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.wb-static-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border: 1px solid var(--sa-border);
+  border-radius: 10px;
+  background: var(--sa-surface);
+}
+
+.wb-static-item.empty {
+  opacity: 0.45;
+}
+
+.wb-static-icon {
+  font-size: 30px;
+}
+
+.wb-static-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sa-strong);
+}
+
+.wb-static-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.wb-static-note {
+  font-size: 11px;
+  color: var(--sa-muted);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 720px) {
+  .wb-top {
+    padding: 8px 10px;
+  }
+  .wb-title {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+  .wb-quality {
+    max-width: 120px;
+  }
+  .wb-catalog {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 132px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: none;
+    flex: 0 0 auto;
+  }
+  .wb-item {
+    width: 132px;
+  }
+  .wb-preview {
+    right: 10px;
+    top: auto;
+    bottom: 210px;
+    left: 10px;
+    width: auto;
+    max-width: none;
+  }
+  .wb-toast {
+    bottom: 200px;
+  }
+}

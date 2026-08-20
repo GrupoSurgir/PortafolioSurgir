@@ -18,6 +18,10 @@ export default function Workstation({
   position = [0, 0, 0],
   rotationY = 0,
   storeId = "surgir",
+  poweredOn,
+  isPoweringOn,
+  isPoweringOff,
+  onCpuClick,
 }) {
   const statusMat = useRef();
   const caseLight = useRef();
@@ -44,7 +48,10 @@ export default function Workstation({
       ))}
 
       {/* ---------- PC (torre) ---------- */}
-      <group position={[-0.85, 0, -0.25]}>
+      <group
+        position={[-0.85, 0, -0.25]}
+        onClick={onCpuClick}
+      >
         <mesh position={[0, DESK_TOP_Y + 0.225, 0]} castShadow receiveShadow>
           <boxGeometry args={[0.22, 0.45, 0.46]} />
           <meshStandardMaterial color="#2a2c34" roughness={0.7} metalness={0.12} />
@@ -69,7 +76,7 @@ export default function Workstation({
       </group>
 
       {/* ---------- MONITOR (interactivo) ---------- */}
-      <Monitor pcRef={pcRef} storeId={storeId} />
+      <Monitor pcRef={pcRef} storeId={storeId} poweredOn={poweredOn} />
 
       {/* ---------- TECLADO ---------- */}
       <mesh position={[0, DESK_TOP_Y + 0.018, 0.18]} castShadow receiveShadow>

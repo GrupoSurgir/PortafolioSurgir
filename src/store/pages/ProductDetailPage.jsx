@@ -150,6 +150,23 @@ export default function ProductDetailPage({ navigate, params }) {
 
           <div className="sa-price-lg">{free ? "Gratis · $0" : `$${p.price}`}</div>
 
+          {p.category === "personalizacion" && (
+            <div className="sa-perso-cta">
+              <p className="sa-mini">
+                Este producto forma parte de la personalización de tu puesto.
+                Lo verás en 3D antes de decidir.
+              </p>
+              <button
+                className="sa-btn accent block"
+                onClick={() =>
+                  navigate("builder", { slot: p.slot, product: p.slug })
+                }
+              >
+                Personalizar mi puesto →
+              </button>
+            </div>
+          )}
+
           {unlocked ? (
             <div className="sa-grant">
               <div className="sa-name-lg" style={{ fontSize: 16 }}>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { site } from "../data/site.js";
 import HomePage from "./pages/HomePage.jsx";
 import StorePage from "./pages/StorePage.jsx";
@@ -12,6 +12,10 @@ import SettingsPage from "./pages/SettingsPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import { webView } from "./webView.js";
 import "./store.css";
+
+// El Workplace Builder (Three.js interactivo) se carga de forma diferida: la
+// navegación normal de la Store no arrastra el chunk 3D del personalizador.
+const WorkplaceBuilder = lazy(() => import("./workplace/WorkplaceBuilder.jsx"));
 
 const THEME_KEY = "surgir-theme";
 
@@ -38,6 +42,8 @@ function parseHash() {
   switch (segs[0]) {
     case "store":
       return { page: "shop", params };
+    case "builder":
+      return { page: "builder", params };
     case "product":
       return { page: "product", params: { ...params, slug: segs[1] } };
     case "wiki":
@@ -64,6 +70,12 @@ function pathFor(page, params = {}) {
       if (params.q) qs.push(`q=${encodeURIComponent(params.q)}`);
       if (params.category) qs.push(`category=${encodeURIComponent(params.category)}`);
       return "#/store" + (qs.length ? `?${qs.join("&")}` : "");
+    }
+    case "builder": {
+      const qs = [];
+      if (params.slot) qs.push(`slot=${encodeURIComponent(params.slot)}`);
+      if (params.product) qs.push(`product=${encodeURIComponent(params.product)}`);
+      return "#/builder" + (qs.length ? `?${qs.join("&")}` : "");
     }
     case "product":
       return `#/product/${params.slug}`;
@@ -198,12 +210,17 @@ function StoreAppInner({ storeId, onExit }) {
       storeId,
       theme,
       onTheme: setTheme,
+      // La instancia de pantalla completa monta el Builder 3D interactivo; la
+      // del monitor del PC muestra una vista estática ligera (sin 2º Canvas).
+      fullscreen: typeof onExit === "function",
     };
     switch (route.page) {
       case "shop":
         return <StorePage {...props} />;
       case "product":
         return <ProductDetailPage {...props} />;
+      case "builder":
+        return <WorkplaceBuilder {...props} />;
       case "wiki":
         return <WikiPage {...props} />;
       case "services":
@@ -282,7 +299,11 @@ function StoreAppInner({ storeId, onExit }) {
         </div>
       </div>
 
-      <div className="sa-content">{renderPage()}</div>
+      <div className="sa-content">
+        <Suspense fallback={<div className="sa-empty">Cargando personalizador…</div>}>
+          {renderPage()}
+        </Suspense>
+      </div>
 
       <div className="sa-footer">
         <div>

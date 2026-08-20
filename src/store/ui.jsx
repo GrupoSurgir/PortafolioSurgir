@@ -17,6 +17,7 @@ export function StatusPill({ status }) {
 export function ProductCard({ p, onOpen }) {
   const unavailable = p.status === "Próximamente" || p.status === "En preparación";
   const free = p.price === 0;
+  const perso = p.category === "personalizacion";
   return (
     <div className="sa-card" onClick={() => onOpen(p.slug)}>
       <div className="sa-icon">{p.icon || p.name.charAt(0)}</div>
@@ -35,7 +36,13 @@ export function ProductCard({ p, onOpen }) {
           onOpen(p.slug);
         }}
       >
-        {unavailable ? "Próximamente" : free ? "Descargar gratis" : "Ver producto"}
+        {unavailable
+          ? "Próximamente"
+          : perso
+          ? "Personalizar →"
+          : free
+          ? "Descargar gratis"
+          : "Ver producto"}
       </button>
     </div>
   );

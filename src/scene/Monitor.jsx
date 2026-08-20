@@ -35,7 +35,37 @@ function smooth(a, b, x) {
   return t * t * (3 - 2 * t);
 }
 
-export default function Monitor({ pcRef, storeId = "surgir" }) {
+export default function Monitor({ pcRef, poweredOn, isPoweringOn, isPoweringOff, storeId = "surgir" }) {
+  // Estados de transición de poder (refs para ser mutables desde useFrame)
+  const isPoweringOnRef = useRef(isPoweringOn);
+  const isPoweringOffRef = useRef(isPoweringOff);
+  isPoweringOnRef.current = isPoweringOn;
+  isPoweringOffRef.current = isPoweringOff;
+
+  // Forzar boot de encendido (llamado desde App.jsx)
+  const forceBoot = () => {
+    isPoweringOnRef.current = true;
+    // Reiniciar la máquina de estados del monitor para el boot
+    st.current.clicked = false;
+    st.current.t = 0;
+    st.current.phase = "powering";
+    enterStarted.current = false;
+    revealStarted.current = false;
+    setRevealed(false);
+    // Reset hint
+    setHint(true);
+  };
+
+  // Forzar apagado (llamado desde App.jsx)
+  const forcePowerOff = () => {
+    isPoweringOffRef.current = true;
+    // Iniciar timeline de apagado inverso
+    // Reiniciar t y phase para iniciar la animación inversa
+    st.current.clicked = true;
+    st.current.t = 0;
+    s = st.current;
+    s.phase = "powering";
+  };
   const canvas = useMemo(() => {
     const c = document.createElement("canvas");
     c.width = W;
@@ -250,7 +280,105 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
     const pc = pcRef.current;
     const s = st.current;
 
-    if (s.clicked) {
+    // Manejar transición de POWER ON
+    if (isPoweringOnRef.current && !isPoweringOffRef.current) {
+      // Animación de encendido existente
+      const runningBoot = s.clicked && !poweredOn;
+      if (runningBoot) {
+        s.t += Math.min(delta, 0.05);
+        if (s.t < 0.2) s.phase = "powering";
+        else if (s.t < 0.6) s.phase = "power";
+        else if (s.t < 1.2) s.phase = "scan";
+        else if (s.t < 1.8) s.phase = "boot";
+        else if (s.t < 2.5) s.phase = "reveal";
+        else {
+          // Boot completado: PC ahora encendido
+          s.phase = "enter";
+          isPoweringOnRef.current = false;
+          setPoweredOn(true);
+          setRevealed(true);
+          revealStarted.current = false;
+          enterStarted.current = false;
+          s.clicked = false;
+          s.t = 0;
+          // Marcar que el usuario hizo click para mantener el estado
+          // (el siguiente click entrará directo a StoreApp)
+          setHint(false);
+        }
+
+        // Revelado de la web moderna sobre la pantalla.
+        if (s.t >= 1.8 && !revealStarted.current) {
+          revealStarted.current = true;
+          setRevealed(true);
+        }
+        // Cámara entra en el monitor (al final del boot).
+        if (s.t >= 2.5 && !enterStarted.current && pc.startEnter) {
+          enterNow();
+        }
+      }
+
+      // Redibujar la secuencia mientras corre el boot.
+      if (!s.clicked || runningBoot || s.t < 2.5) draw(s.t, s.clicked);
+      return;
+    }
+
+    // Manejar transición de POWER OFF (inverso al boot)
+    if (isPoweringOffRef.current && !isPoweringOnRef.current) {
+      // Animación de apagado: inverse al boot
+      // Fases: powering → power → scan → boot → reveal → off
+      // Empezamos desde donde esté, pero vamos hacia "off"
+      
+      // Si todavía estamos en estado encendido, empezar la inversa
+      if (s.clicked && poweredOn) {
+        s.t += Math.min(delta, 0.05);
+        
+        // Inverso al boot: desde el estado actual hacia off
+        // powering: 0-0.2 (ir hacia off)
+        // power: 0.2-0.6 (desvanecer neon)
+        // scan: 0.6-1.2 (limpiar screen)
+        // boot: 1.2-1.8 (desvanecer UI)
+        // reveal: 1.8-2.5 (oscurecer pantalla)
+        // off: 2.5+ (pantalla negra)
+        
+        if (s.t < 0.2) {
+          s.phase = "powering";
+        } else if (s.t < 0.6) {
+          s.phase = "power";
+        } else if (s.t < 1.2) {
+          s.phase = "scan";
+        } else if (s.t < 1.8) {
+          s.phase = "boot";
+        } else if (s.t < 2.5) {
+          s.phase = "reveal";
+        } else {
+          // Apagado completado
+          s.phase = "off";
+          isPoweringOffRef.current = false;
+          setPoweredOn(false);
+          setRevealed(false);
+          revealStarted.current = false;
+          enterStarted.current = false;
+          s.clicked = false;
+          s.t = 0;
+        }
+      }
+
+      // Redibujar secuencia de apagado
+      // Durante apagado: mostrar según fase actual
+      // powering: parches neon suaves que se apagan
+      // power: neon disappears
+      // screen: gradualmente más oscuro
+      if (!s.clicked || s.t < 2.5) draw(s.t, s.clicked);
+      return;
+    }
+
+    // Comportamiento normal cuando no hay transición de poder
+    // Solo animar el boot si el PC aún no está encendido.
+    // Si poweredOn es true, el boot ya se ejecutó y los clicks
+    // entran directo a la web.
+    const runningBoot = s.clicked && !poweredOn;
+
+    if (runningBoot) {
       s.t += Math.min(delta, 0.05);
       if (s.t < 0.2) s.phase = "powering";
       else if (s.t < 0.6) s.phase = "power";
@@ -276,8 +404,8 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
     if (s.clicked) inten = s.t < 0.2 ? 0 : Math.min(1, (s.t - 0.2) / 0.1);
     if (screenMat.current) screenMat.current.emissiveIntensity = inten;
 
-    // Redibujar la secuencia mientras corre el boot.
-    if (!s.clicked || s.t < 2.5) draw(s.t, s.clicked);
+    // Redibujar la secuencia mientras corre el boot o si el PC está apagado.
+    if (!s.clicked || runningBoot || s.t < 2.5) draw(s.t, s.clicked);
   });
 
   const onPointerDown = (e) => {
@@ -294,11 +422,22 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
     // Durante el boot el click queda bloqueado.
     if (pc.booting) return;
     // El PC ya está ENCENDIDO: entra directamente a la web, sin repetir el boot.
+    if (poweredOn) {
+      // PC already powered on: directly enter, no boot sequence
+      if (screenMeshRef.current && grpRef.current && pcRef.current.startEnter) {
+        const pos = new THREE.Vector3();
+        const quat = new THREE.Quaternion();
+        if (screenMeshRef.current) screenMeshRef.current.getWorldPosition(pos);
+        if (grpRef.current) grpRef.current.getWorldQuaternion(quat);
+        pcRef.current.startEnter(pos, quat);
+      }
+      return;
+    }
+    // PRIMER ENCENDIDO: se ejecuta la secuencia de arranque.
     if (enterStarted.current) {
       enterNow();
       return;
     }
-    // PRIMER ENCENDIDO: se ejecuta la secuencia de arranque.
     s.clicked = true;
     s.t = 0;
     s.phase = "powering";

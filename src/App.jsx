@@ -40,6 +40,12 @@ export default function App() {
   const [phase, setPhase] = useState("space");
   const [panelOpen, setPanelOpen] = useState(false);
   const [settings, setSettings] = useState(loadSettings);
+  // Estado persistente durante la sesión: ¿el PC ya fue encendido?
+  // Se reinicia a false solo con recarga completa del navegador.
+  const [poweredOn, setPoweredOn] = useState(false);
+  // Estado intermedio de transición de energía
+  const isPoweringOn = useRef(false);
+  const isPoweringOff = useRef(false);
 
   const wakeRef = useRef(computeWake(0));
   const startedRef = useRef(true);
@@ -90,17 +96,41 @@ export default function App() {
   const goToPage = useMemo(
     () => () => {
       setPhase((p) => (p === "page" ? p : "page"));
+      setPoweredOn(true);
     },
     []
   );
 
-  // Volver a la experiencia 3D desde la aplicación. El PC PERMANECE encendido:
-  // solo la cámara regresa a la pose de observación (sin rearmar el boot).
+// Volver a la experiencia 3D desde la aplicación. El PC PERMANECE encendido:
+// solo la cámara regresa a la pose de observación (sin rearmar el boot).
   const returnToSpace = () => {
     if (pcRef.current.resetView) pcRef.current.resetView();
     setPhase("space");
     // La instancia de StoreApp del monitor aplica el último scroll guardado.
     notifyWebVisible();
+    // No resetear poweredOn: el PC se queda encendido durante toda la sesión.
+  };
+
+  // Manejar click en la CPU/torre: alterna encendido/apagado
+  const handleCpuClick = () => {
+    // Durante transiciones de poder, bloquear
+    if (isPoweringOn.current || isPoweringOff.current) return;
+
+    if (!poweredOn) {
+      // Encender PC: iniciar secuencia de boot
+      isPoweringOn.current = true;
+      // Indicar al Monitor que inicie el boot
+      if (monitorRef.current && typeof monitorRef.current.forceBoot === "function") {
+        monitorRef.current.forceBoot();
+      }
+    } else {
+      // Apagar PC: iniciar animación de apagado
+      isPoweringOff.current = true;
+      // Indicar al Monitor que inicie el apagado
+      if (monitorRef.current && typeof monitorRef.current.forcePowerOff === "function") {
+        monitorRef.current.forcePowerOff();
+      }
+    }
   };
 
   useEffect(() => {
@@ -141,13 +171,17 @@ export default function App() {
         {in3D && (
           <div className="scene-wrap">
             <Suspense fallback={null}>
-              <Scene
+<Scene
                 wakeRef={wakeRef}
                 startedRef={startedRef}
                 pcRef={pcRef}
                 environmentId={settings.environment}
                 onGl={onGl}
-              />
+                poweredOn={poweredOn}
+                isPoweringOn={isPoweringOn}
+                isPoweringOff={isPoweringOff}
+                onCpuClick={handleCpuClick}
+/>
             </Suspense>
           </div>
         )}

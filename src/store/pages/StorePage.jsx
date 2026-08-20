@@ -27,12 +27,42 @@ export default function StorePage({ navigate, params }) {
     });
   }, [selected, q]);
 
+  // Los productos de personalización abren el Workplace Builder (3D) en su
+  // slot correspondiente; el resto abre la ficha de producto.
+  const openProduct = (slug) => {
+    const p = products.find((x) => x.slug === slug);
+    if (p && p.category === "personalizacion") {
+      navigate("builder", { slot: p.slot, product: slug });
+    } else {
+      navigate("product", { slug });
+    }
+  };
+
   return (
     <div className="sa-wrap">
       <h1 className="sa-h1">Tienda</h1>
       <p className="sa-lead">
-        Plugins, recursos y herramientas de SURGIR. Precios en USD.
+        Plugins, recursos, herramientas y personalización de tu puesto. Precios
+        en USD.
       </p>
+
+      {selected === "personalizacion" && (
+        <div className="sa-perso-banner">
+          <div>
+            <div className="sa-perso-title">🖥️ PERSONALIZA TU PUESTO</div>
+            <p className="sa-perso-desc">
+              Arma tu espacio de trabajo en 3D: pantallas, PC, teclado, mouse y
+              aro de luz. Todo en tiempo real, sin comprar nada todavía.
+            </p>
+          </div>
+          <button
+            className="sa-btn accent"
+            onClick={() => navigate("builder")}
+          >
+            Personalizar mi puesto →
+          </button>
+        </div>
+      )}
 
       <div className="sa-filters">
         <button
@@ -67,11 +97,7 @@ export default function StorePage({ navigate, params }) {
       ) : (
         <div className="sa-grid">
           {list.map((p) => (
-            <ProductCard
-              key={p.slug}
-              p={p}
-              onOpen={(s) => navigate("product", { slug: s })}
-            />
+            <ProductCard key={p.slug} p={p} onOpen={openProduct} />
           ))}
         </div>
       )}

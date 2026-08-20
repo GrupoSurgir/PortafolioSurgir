@@ -291,7 +291,7 @@ function SceneContents({ wakeRef, startedRef, pcRef, environmentId, onGl }) {
   );
 }
 
-export default function Scene({ wakeRef, startedRef, pcRef, environmentId, onGl }) {
+export default function Scene({ wakeRef, startedRef, pcRef, environmentId, onGl, poweredOn, isPoweringOn, isPoweringOff, onCpuClick }) {
   return (
     <Canvas
       camera={{ fov: 50, near: 0.05, far: 2000, position: [3.0, 1.7, 3.8] }}
@@ -309,6 +309,10 @@ export default function Scene({ wakeRef, startedRef, pcRef, environmentId, onGl 
         pcRef={pcRef}
         environmentId={environmentId}
         onGl={onGl}
+        poweredOn={poweredOn}
+        isPoweringOn={isPoweringOn}
+        isPoweringOff={isPoweringOff}
+        onCpuClick={onCpuClick}
       />
     </Canvas>
   );
