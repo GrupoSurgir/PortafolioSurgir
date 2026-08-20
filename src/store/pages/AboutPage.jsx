@@ -3,11 +3,11 @@ import { site } from "../../data/site.js";
 export default function AboutPage() {
   return (
     <div className="sa-wrap">
-      <h1 className="sa-h1">Sobre SURGIR</h1>
+      <h1 className="sa-h1">SurgirStudio</h1>
       <p className="sa-lead">
-        SURGIR es un estudio de desarrollo de herramientas digitales: plugins
-        para servidores Minecraft, sistemas de integración, automatización e
-        inteligencia artificial, y aplicaciones web con identidad propia.
+        Estudio digital que ofrece soluciones técnicas para Servidores de
+        Minecraft, Aplicaciones web, desarrollo de automatizaciones conformes a
+        tu objetivo y resultados listos para producción.
       </p>
 
       <div className="sa-hero" style={{ marginTop: 22 }}>

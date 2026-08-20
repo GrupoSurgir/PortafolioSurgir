@@ -14,14 +14,7 @@ import "./store.css";
 
 const THEME_KEY = "surgir-theme";
 
-// Opciones principales: siempre visibles arriba (PC y móvil).
-const NAV = [
-  { id: "home", label: "Inicio" },
-  { id: "about", label: "SurgirStudio" },
-  { id: "contact", label: "Contacto" },
-];
-
-// El resto vive dentro de "Categorías" (mismo concepto en PC y móvil).
+// El resto de secciones vive dentro de "Categorías" (mismo concepto en PC y móvil).
 const CATEGORIES = [
   { id: "shop", label: "Tienda", icon: "🛒" },
   { id: "wiki", label: "Wiki", icon: "📚" },
@@ -102,19 +95,9 @@ function systemPrefersDark() {
 
 function StoreAppInner({ storeId, onExit }) {
   const [route, setRoute] = useState(parseHash);
-  // Menú móvil (hamburguesa). `leaving` mantiene montado el panel durante la
-  // animación de cierre; el botón ☰ se transforma en ✕ vía CSS.
-  const [menu, setMenu] = useState(false);
-  const [leaving, setLeaving] = useState(false);
-  const [catOpen, setCatOpen] = useState(false);
-  // Panel "Categorías" del desktop (se cierra al pulsar fuera / Escape).
+  // Panel "Categorías" (se cierra al pulsar fuera / Escape).
   const [catMenu, setCatMenu] = useState(false);
   const catRef = useRef(null);
-  // Ref del estado del menú para handlers con ciclo de vida largo (Escape).
-  const menuRef = useRef(false);
-  useEffect(() => {
-    menuRef.current = menu;
-  }, [menu]);
   // Preferencia de apariencia: "system" | "light" | "dark" (persistida).
   const [theme, setTheme] = useState(
     () => localStorage.getItem(THEME_KEY) || "system"
@@ -152,7 +135,6 @@ function StoreAppInner({ storeId, onExit }) {
     const onKey = (e) => {
       if (e.key === "Escape") {
         setCatMenu(false);
-        closeMenu();
       }
     };
     document.addEventListener("mousedown", onDown);
@@ -174,12 +156,10 @@ function StoreAppInner({ storeId, onExit }) {
   };
 
   const go = (page, params = {}) => {
-    closeMenu();
     navigate(page, params);
   };
 
   const goBack = () => {
-    closeMenu();
     // El botón "Regresar" vuelve a la experiencia 3D (no al historial externo).
     if (onExit) {
       onExit();
@@ -187,21 +167,6 @@ function StoreAppInner({ storeId, onExit }) {
     }
     if (window.history.length > 1) window.history.back();
     else go("home");
-  };
-
-  const openMenu = () => {
-    setLeaving(false);
-    setMenu(true);
-  };
-
-  const closeMenu = () => {
-    if (!menuRef.current) return;
-    setLeaving(true);
-    setTimeout(() => {
-      setMenu(false);
-      setLeaving(false);
-      setCatOpen(false);
-    }, 200);
   };
 
   const renderPage = () => {
@@ -240,21 +205,18 @@ function StoreAppInner({ storeId, onExit }) {
   return (
     <div className="surgir-app" data-theme={effectiveTheme}>
       <div className="sa-nav">
-        <button
-          className={`sa-burger ${menu || leaving ? "open" : ""}`}
-          aria-label={menu ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={menu}
-          onClick={menu || leaving ? closeMenu : openMenu}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-
-        <button className="sa-nav-back" onClick={goBack} aria-label="Regresar">
-          <span className="sa-nav-back-icon">←</span>
-          <span className="sa-nav-back-label">Regresar</span>
-        </button>
+        <div className="sa-nav-left">
+          <button className="sa-nav-back" onClick={goBack} aria-label="Regresar a la experiencia 3D">
+            <span className="sa-nav-back-icon">←</span>
+            <span className="sa-nav-back-label">Regresar</span>
+          </button>
+          <span
+            className={`sa-link sa-nav-contact ${route.page === "contact" ? "active" : ""}`}
+            onClick={() => go("contact")}
+          >
+            Contacto
+          </span>
+        </div>
 
         <div
           className="sa-logo"
@@ -266,20 +228,6 @@ function StoreAppInner({ storeId, onExit }) {
           {site.shortName}
           <span className="sa-logo-dot">◆</span>
         </div>
-
-        <div className="sa-links">
-          {NAV.map((n) => (
-            <span
-              key={n.id}
-              className={`sa-link ${route.page === n.id ? "active" : ""}`}
-              onClick={() => navigate(n.id)}
-            >
-              {n.label}
-            </span>
-          ))}
-        </div>
-
-        <span className="sa-spacer" />
 
         <div className="sa-catmenu" ref={catRef}>
           <button
@@ -310,81 +258,14 @@ function StoreAppInner({ storeId, onExit }) {
             </div>
           )}
         </div>
-
-        <button className="sa-mobile-contact" onClick={() => go("contact")}>
-          Contacto
-        </button>
       </div>
-
-      {/* Menú móvil: mismo concepto que el desktop (opciones principales +
-          Categorías). Solo visible en mobile/tablet (CSS). */}
-      {(menu || leaving) && (
-        <div
-          className={`sa-mmenu ${leaving ? "leaving" : ""}`}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="sa-mmenu-inner">
-            <div className="sa-mmenu-head">
-              <b>{site.name}</b>
-              <button
-                className="sa-mmenu-close-x"
-                onClick={closeMenu}
-                aria-label="Cerrar menú"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="sa-mmenu-group">
-              <button className="sa-mmenu-item" onClick={() => go("home")}>
-                Inicio
-              </button>
-              <button className="sa-mmenu-item" onClick={() => go("about")}>
-                SurgirStudio
-              </button>
-              <button className="sa-mmenu-item" onClick={() => go("contact")}>
-                Contacto
-              </button>
-            </div>
-
-            <div className="sa-mmenu-group">
-              <button
-                className="sa-mmenu-item sa-mmenu-cat"
-                aria-expanded={catOpen}
-                onClick={() => setCatOpen((o) => !o)}
-              >
-                <span>Categorías</span>
-                <span className={`sa-mmenu-caret ${catOpen ? "open" : ""}`}>▸</span>
-              </button>
-              {catOpen && (
-                <div className="sa-mmenu-sublist">
-                  {CATEGORIES.map((c) => (
-                    <button
-                      key={c.id}
-                      className="sa-mmenu-sub"
-                      onClick={() => go(c.id)}
-                    >
-                      <span className="sa-drop-icon">{c.icon}</span>
-                      {c.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <button className="sa-mmenu-close" onClick={closeMenu}>
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="sa-content">{renderPage()}</div>
 
       <div className="sa-footer">
         <div>
           <b>{site.name}</b>
+          <a onClick={() => go("home")}>Inicio</a>
           <a onClick={() => go("about")}>Sobre SurgirStudio</a>
           <a onClick={() => go("projects")}>Proyectos</a>
         </div>
