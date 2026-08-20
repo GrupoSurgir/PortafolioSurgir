@@ -306,7 +306,9 @@ export default function Monitor({ pcRef }) {
     setHint(false);
   };
   const onPointerOver = () => {
-    if (st.current.phase === "off") document.body.style.cursor = "pointer";
+    // El monitor siempre es clickeable en el espacio: encender (off) o
+    // re-entrar a la última vista (ya encendido).
+    document.body.style.cursor = "pointer";
   };
   const onPointerOut = () => {
     document.body.style.cursor = "default";
