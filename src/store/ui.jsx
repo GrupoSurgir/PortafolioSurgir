@@ -4,9 +4,11 @@ import { categoryName } from "../data/products.js";
 
 export function StatusPill({ status }) {
   const cls =
-    status === "Próximamente" || status === "En preparación"
+    status === "EN DESARROLLO" ||
+    status === "Próximamente" ||
+    status === "En preparación"
       ? "soon"
-      : status === "Disponible"
+      : status === "ACTIVO" || status === "Disponible"
       ? ""
       : "off";
   return <span className={`sa-pill ${cls}`}>{status}</span>;

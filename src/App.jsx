@@ -1,5 +1,4 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import LinesOverlay from "./scene/LinesOverlay.jsx";
 import ExperienceGuide from "./components/ExperienceGuide.jsx";
 import DragGestureIndicator from "./components/DragGestureIndicator.jsx";
 import AdminPanel from "./components/AdminPanel.jsx";
@@ -145,9 +144,6 @@ export default function App() {
             </Suspense>
           </div>
         )}
-
-        {/* Overlay de líneas: parte de la experiencia 3D. */}
-        {phase === "space" && <LinesOverlay wakeRef={wakeRef} />}
 
         {/* Engranaje: abre configuración durante la observación del PC. */}
         {phase === "space" && (

@@ -7,7 +7,6 @@
 // entra, el PC y el setup cercano se encienden; luego la luz se expande hacia
 // el entorno y la profundidad, dando sensación de espacio infinito (la luz
 // cerca revela el PC, y más allá el vacío se pierde en la niebla).
-//  0.0 - 1.5   líneas verticales finas que ascienden (sistemas inicializando)
 //  0.3 - 2.5   luz cercana (revela PC + escritorio + cubo de inmediato)
 //  0.8 - 3.0   luz de escritorio (monitor / teclado)
 //  1.5 - 3.5   luz de entorno (relleno tenue)
@@ -31,9 +30,6 @@ function ramp(x, a, b) {
 
 export function computeWake(t) {
   return {
-    // Overlay de líneas: aparece rápido (0->1.5) y se desvanece (2.5->3.5)
-    // justo cuando la luz ya está revelando el espacio.
-    lines: ramp(t, 0, 1.5) * (1 - ramp(t, 2.5, 3.5)),
     // Luces progresivas (intensidad normalizada 0..1). Con base inmediata:
     // desde que el usuario entra, el PC y el setup ya son visibles; luego la
     // luz se expande al entorno y la profundidad (vacío infinito).
@@ -49,5 +45,3 @@ export function computeWake(t) {
 
 // Tiempo total hasta que la escena se considera "estable".
 export const WAKE_STEADY = 6;
-
-export { clamp01 };

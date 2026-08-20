@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { site } from "../data/site.js";
-import { categories } from "../data/products.js";
 import HomePage from "./pages/HomePage.jsx";
 import StorePage from "./pages/StorePage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
@@ -9,16 +8,24 @@ import ProjectsPage from "./pages/ProjectsPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import WikiPage from "./pages/WikiPage.jsx";
+import SettingsPage from "./pages/SettingsPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import "./store.css";
 
+const THEME_KEY = "surgir-theme";
+
+// Opciones principales: siempre visibles arriba (PC y móvil).
 const NAV = [
   { id: "home", label: "Inicio" },
-  { id: "shop", label: "Tienda" },
-  { id: "services", label: "Servicios" },
-  { id: "projects", label: "Proyectos" },
-  { id: "about", label: "Sobre" },
+  { id: "about", label: "SurgirStudio" },
   { id: "contact", label: "Contacto" },
+];
+
+// El resto vive dentro de "Categorías" (mismo concepto en PC y móvil).
+const CATEGORIES = [
+  { id: "shop", label: "Tienda", icon: "🛒" },
+  { id: "wiki", label: "Wiki", icon: "📚" },
+  { id: "settings", label: "Configuraciones", icon: "⚙️" },
 ];
 
 // Routing por hash: URLs directas (/#/store, /#/product/surgir-entregas, …)
@@ -49,6 +56,8 @@ function parseHash() {
       return { page: "about", params };
     case "contact":
       return { page: "contact", params };
+    case "settings":
+      return { page: "settings", params };
     default:
       return { page: "notfound", params };
   }
@@ -65,7 +74,7 @@ function pathFor(page, params = {}) {
     case "product":
       return `#/product/${params.slug}`;
     case "wiki":
-      return `#/wiki/${params.slug}`;
+      return params.slug ? `#/wiki/${params.slug}` : "#/wiki";
     case "services":
       return "#/services";
     case "projects":
@@ -74,6 +83,8 @@ function pathFor(page, params = {}) {
       return "#/about";
     case "contact":
       return "#/contact";
+    case "settings":
+      return "#/settings";
     case "notfound":
       return "#/notfound";
     default:
@@ -81,14 +92,50 @@ function pathFor(page, params = {}) {
   }
 }
 
+function systemPrefersDark() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+}
+
 function StoreAppInner({ storeId }) {
   const [route, setRoute] = useState(parseHash);
-  const [search, setSearch] = useState("");
   // Menú móvil (hamburguesa). `leaving` mantiene montado el panel durante la
   // animación de cierre; el botón ☰ se transforma en ✕ vía CSS.
   const [menu, setMenu] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
+  // Panel "Categorías" del desktop (se cierra al pulsar fuera / Escape).
+  const [catMenu, setCatMenu] = useState(false);
+  const catRef = useRef(null);
+  // Ref del estado del menú para handlers con ciclo de vida largo (Escape).
+  const menuRef = useRef(false);
+  useEffect(() => {
+    menuRef.current = menu;
+  }, [menu]);
+  // Preferencia de apariencia: "system" | "light" | "dark" (persistida).
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem(THEME_KEY) || "system"
+  );
+  const [systemDark, setSystemDark] = useState(systemPrefersDark);
+
+  // Seguir el tema del sistema cuando la preferencia es "system".
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = (e) => setSystemDark(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  // Persistir la preferencia de tema.
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
+
+  const effectiveTheme =
+    theme === "system" ? (systemDark ? "dark" : "light") : theme;
 
   // Sincronizar con el hash (botones atrás/adelante y recargas).
   useEffect(() => {
@@ -97,7 +144,28 @@ function StoreAppInner({ storeId }) {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
+  // Cerrar paneles al pulsar fuera o con Escape.
+  useEffect(() => {
+    const onDown = (e) => {
+      if (catRef.current && !catRef.current.contains(e.target)) setCatMenu(false);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setCatMenu(false);
+        closeMenu();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const navigate = (page, params = {}) => {
+    setCatMenu(false);
     const hash = pathFor(page, params);
     if (window.location.hash === hash) setRoute(parseHash());
     else window.location.hash = hash;
@@ -110,13 +178,19 @@ function StoreAppInner({ storeId }) {
     navigate(page, params);
   };
 
+  const goBack = () => {
+    closeMenu();
+    if (window.history.length > 1) window.history.back();
+    else go("home");
+  };
+
   const openMenu = () => {
     setLeaving(false);
     setMenu(true);
   };
 
   const closeMenu = () => {
-    if (!menu) return;
+    if (!menuRef.current) return;
     setLeaving(true);
     setTimeout(() => {
       setMenu(false);
@@ -126,7 +200,13 @@ function StoreAppInner({ storeId }) {
   };
 
   const renderPage = () => {
-    const props = { navigate, params: route.params, storeId };
+    const props = {
+      navigate,
+      params: route.params,
+      storeId,
+      theme,
+      onTheme: setTheme,
+    };
     switch (route.page) {
       case "shop":
         return <StorePage {...props} />;
@@ -142,6 +222,8 @@ function StoreAppInner({ storeId }) {
         return <AboutPage {...props} />;
       case "contact":
         return <ContactPage {...props} />;
+      case "settings":
+        return <SettingsPage {...props} />;
       case "notfound":
         return <NotFoundPage {...props} />;
       case "home":
@@ -150,13 +232,8 @@ function StoreAppInner({ storeId }) {
     }
   };
 
-  const onSearch = () => {
-    const q = search.trim();
-    if (q) go("shop", { q });
-  };
-
   return (
-    <div className="surgir-app">
+    <div className="surgir-app" data-theme={effectiveTheme}>
       <div className="sa-nav">
         <button
           className={`sa-burger ${menu || leaving ? "open" : ""}`}
@@ -169,6 +246,11 @@ function StoreAppInner({ storeId }) {
           <span />
         </button>
 
+        <button className="sa-nav-back" onClick={goBack} aria-label="Regresar">
+          <span className="sa-nav-back-icon">←</span>
+          <span className="sa-nav-back-label">Regresar</span>
+        </button>
+
         <div
           className="sa-logo"
           onClick={() => go("home")}
@@ -176,7 +258,7 @@ function StoreAppInner({ storeId }) {
           tabIndex={0}
           onKeyDown={(e) => e.key === "Enter" && go("home")}
         >
-          {site.name}
+          {site.shortName}
           <span className="sa-logo-dot">◆</span>
         </div>
 
@@ -191,32 +273,62 @@ function StoreAppInner({ storeId }) {
             </span>
           ))}
         </div>
+
         <span className="sa-spacer" />
-        <input
-          className="sa-search"
-          placeholder="Buscar..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSearch()}
-        />
+
+        <div className="sa-catmenu" ref={catRef}>
+          <button
+            className={`sa-link sa-cat-btn ${catMenu ? "active" : ""}`}
+            aria-expanded={catMenu}
+            aria-haspopup="true"
+            onClick={() => setCatMenu((o) => !o)}
+          >
+            Categorías
+            <span className={`sa-cat-caret ${catMenu ? "open" : ""}`}>▾</span>
+          </button>
+          {catMenu && (
+            <div className="sa-dropdown" role="menu">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  className="sa-drop-item"
+                  role="menuitem"
+                  onClick={() => {
+                    setCatMenu(false);
+                    go(c.id);
+                  }}
+                >
+                  <span className="sa-drop-icon">{c.icon}</span>
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button className="sa-mobile-contact" onClick={() => go("contact")}>
           Contacto
         </button>
       </div>
 
-      {/* Menú móvil: panel deslizante con navegación priorizada. Solo visible
-          en mobile/tablet (CSS); en desktop no se renderiza por encima. */}
+      {/* Menú móvil: mismo concepto que el desktop (opciones principales +
+          Categorías). Solo visible en mobile/tablet (CSS). */}
       {(menu || leaving) && (
-        <div className={`sa-mmenu ${leaving ? "leaving" : ""}`} role="dialog" aria-modal="true">
+        <div
+          className={`sa-mmenu ${leaving ? "leaving" : ""}`}
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="sa-mmenu-inner">
-            <div className="sa-mmenu-search">
-              <input
-                className="sa-search"
-                placeholder="Buscar en la tienda..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && onSearch()}
-              />
+            <div className="sa-mmenu-head">
+              <b>{site.name}</b>
+              <button
+                className="sa-mmenu-close-x"
+                onClick={closeMenu}
+                aria-label="Cerrar menú"
+              >
+                ✕
+              </button>
             </div>
 
             <div className="sa-mmenu-group">
@@ -242,21 +354,16 @@ function StoreAppInner({ storeId }) {
               </button>
               {catOpen && (
                 <div className="sa-mmenu-sublist">
-                  {categories.map((c) => (
+                  {CATEGORIES.map((c) => (
                     <button
-                      key={c.slug}
+                      key={c.id}
                       className="sa-mmenu-sub"
-                      onClick={() => go("shop", { category: c.slug })}
+                      onClick={() => go(c.id)}
                     >
-                      {c.name}
+                      <span className="sa-drop-icon">{c.icon}</span>
+                      {c.label}
                     </button>
                   ))}
-                  <button className="sa-mmenu-sub" onClick={() => go("services")}>
-                    Servicios
-                  </button>
-                  <button className="sa-mmenu-sub" onClick={() => go("projects")}>
-                    Proyectos
-                  </button>
                 </div>
               )}
             </div>

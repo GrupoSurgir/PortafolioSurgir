@@ -1,4 +1,4 @@
-import { productBySlug } from "../../data/products.js";
+import { productBySlug, products } from "../../data/products.js";
 import { hasDownload } from "../downloads.js";
 
 function Block({ title, children }) {
@@ -10,7 +10,50 @@ function Block({ title, children }) {
   );
 }
 
+function WikiIndex({ navigate }) {
+  const withDocs = products.filter((p) => p.wiki);
+  const planned = [
+    { name: "SurgirMenu", type: "Plugin Minecraft" },
+    { name: "SurgirAgente", type: "Inteligencia artificial" },
+  ];
+  return (
+    <div className="sa-wrap" style={{ maxWidth: 720 }}>
+      <h1 className="sa-h1">Wiki</h1>
+      <p className="sa-lead">Documentación SURGIR</p>
+
+      <div className="sa-wiki-index">
+        {withDocs.map((p) => (
+          <div className="sa-wiki-card" key={p.id}>
+            <div className="sa-wiki-card-main">
+              <div className="sa-name">{p.name}</div>
+              <div className="sa-cat">{p.type || "Documentación"}</div>
+            </div>
+            <button
+              className="sa-btn ghost"
+              onClick={() => navigate("wiki", { slug: p.slug })}
+            >
+              Ver documentación →
+            </button>
+          </div>
+        ))}
+
+        {planned.map((x) => (
+          <div className="sa-wiki-card muted" key={x.name}>
+            <div className="sa-wiki-card-main">
+              <div className="sa-name">{x.name}</div>
+              <div className="sa-cat">{x.type}</div>
+            </div>
+            <span className="sa-pill soon">Próximamente</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function WikiPage({ navigate, params }) {
+  if (!params.slug) return <WikiIndex navigate={navigate} />;
+
   const p = productBySlug(params.slug);
 
   if (!p || !p.wiki) {

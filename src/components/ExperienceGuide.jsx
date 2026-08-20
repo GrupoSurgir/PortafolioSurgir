@@ -5,29 +5,28 @@ import { useEffect, useRef, useState } from "react";
 //   (sessionStorage, así no molesta en entradas posteriores del mismo tab).
 // - Describe ÚNICAMENTE controles reales: orbitar (arrastrar), zoom (rueda),
 //   encender el monitor (clic en la pantalla) y la tienda que este revela.
-// - Se mantiene 10s y luego se desvanece sola. El usuario puede cerrarla antes.
+// - PERMANECE ABIERTA: no se cierra sola. Solo "Continuar" o ✕ la cierran.
 // - No bloquea la interacción: el contenedor es pointer-events:none salvo los
 //   botones. Así se puede orbitar y hacer clic en el monitor durante la guía.
 
 const SEEN_KEY = "surgir-guide-seen";
-const VISIBLE_MS = 10000;
-const FADE_MS = 1200;
+const FADE_MS = 400;
 
 export default function ExperienceGuide() {
   const [show, setShow] = useState(false);
   const [closing, setClosing] = useState(false);
   const closedRef = useRef(false);
 
-  const dismiss = (immediate) => {
+  const dismiss = () => {
     if (closedRef.current) return;
     closedRef.current = true;
     setClosing(true);
-    setTimeout(() => setShow(false), immediate ? 0 : FADE_MS);
+    setTimeout(() => setShow(false), FADE_MS);
   };
 
   // Decide "mostrar" UNA sola vez (persistente al doble-invoke de StrictMode en
-  // dev): el primer run marca sessionStorage y el segundo run, en lugar de
-  // saltarse el timer por ver seen=1, reprograma el auto-hide correctamente.
+  // dev): el primer run marca sessionStorage y el segundo run no vuelve a
+  // mostrar la guía. Sin temporizador: permanece visible hasta cerrarla.
   const shouldShowRef = useRef(null);
   useEffect(() => {
     if (shouldShowRef.current === null) {
@@ -41,15 +40,13 @@ export default function ExperienceGuide() {
     }
     if (!shouldShowRef.current) return;
     setShow(true);
-    const t = setTimeout(() => dismiss(false), VISIBLE_MS);
-    return () => clearTimeout(t);
   }, []);
 
   if (!show) return null;
 
   return (
     <div className={`exp-guide ${closing ? "closing" : ""}`}>
-      <button className="eg-x" aria-label="Cerrar guía" onClick={() => dismiss(true)}>
+      <button className="eg-x" aria-label="Cerrar guía" onClick={dismiss}>
         ×
       </button>
       <p className="eg-title">Bienvenido a la Experiencia SURGIR</p>
@@ -76,10 +73,10 @@ export default function ExperienceGuide() {
           <span>Ajustes de sonido y ambiente con el engranaje.</span>
         </li>
       </ul>
-      <p className="eg-foot">Esta guía se ocultará en unos segundos.</p>
+      <p className="eg-foot">Esta guía permanece abierta hasta que decidas continuar.</p>
       <div className="eg-actions">
-        <button className="eg-close" onClick={() => dismiss(true)}>
-          ENTENDIDO
+        <button className="eg-close" onClick={dismiss}>
+          Continuar
         </button>
       </div>
     </div>

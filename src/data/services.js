@@ -1,45 +1,45 @@
 // SERVICIOS DE SURGIR — capa de datos administrable.
-// Editar precios, descripciones y contenido sin tocar la interfaz.
+// El portafolio se organiza en tres áreas: personalización de plugins,
+// servidores de Minecraft y páginas web.
 
 export const services = [
   {
     id: "plugins",
-    title: "Desarrollo de plugins",
+    title: "Personalización de plugins",
+    tagline: "Para servidores de Minecraft",
     description:
-      "Plugins personalizados para servidores Minecraft. Funcionalidades a medida, optimizadas y compatibles con Paper / Spigot / Folia.",
-    features: ["Funcionalidad a medida", "Optimización y rendimiento", "Compatibilidad con el ecosistema SURGIR"],
+      "Desarrollo y personalización de plugins a medida para servidores Minecraft: funcionalidades concretas, optimizadas y compatibles con Paper / Spigot / Folia.",
+    features: [
+      "Funcionalidades a medida",
+      "Optimización y rendimiento",
+      "Compatibilidad con el ecosistema SURGIR",
+    ],
     priceFrom: "Consultar",
   },
   {
-    id: "integraciones",
-    title: "Integraciones",
+    id: "servidores",
+    title: "Servidores de Minecraft",
+    tagline: "Configuración y sistemas",
     description:
-      "Integración entre sistemas y plugins: conectamos herramientas existentes para que trabajen juntas de forma estable.",
-    features: ["Conexión de sistemas", "APIs y puentes", "Documentación técnica"],
-    priceFrom: "Consultar",
-  },
-  {
-    id: "sistemas",
-    title: "Sistemas personalizados",
-    description:
-      "Desarrollo de funcionalidades específicas y sistemas completos para servidores y proyectos digitales.",
-    features: ["Diseño de arquitectura", "Desarrollo completo", "Mantenimiento"],
-    priceFrom: "Consultar",
-  },
-  {
-    id: "ia-automatizacion",
-    title: "IA / Automatización",
-    description:
-      "Proyectos de automatización e inteligencia artificial cuando corresponda: bots, procesos y flujos automáticos.",
-    features: ["Automatización de procesos", "Asistentes y bots", "Integración con APIs de IA"],
+      "Configuración, sistemas e integraciones para tu servidor: conectamos herramientas, automatizamos procesos y dejamos todo listo para operar.",
+    features: [
+      "Configuración y puesta a punto",
+      "Sistemas e integraciones",
+      "Automatización de procesos",
+    ],
     priceFrom: "Consultar",
   },
   {
     id: "web",
-    title: "Desarrollo web",
+    title: "Páginas web",
+    tagline: "Presencia digital profesional",
     description:
-      "Aplicaciones y experiencias web personalizadas: sitios, aplicaciones y proyectos interactivos con identidad propia.",
-    features: ["Aplicaciones web", "Experiencias interactivas", "Deploy y producción"],
+      "Sitios y aplicaciones web con identidad propia: diseño, desarrollo, experiencia interactiva y despliegue en producción.",
+    features: [
+      "Sitios y aplicaciones web",
+      "Experiencias interactivas",
+      "Deploy y producción",
+    ],
     priceFrom: "Consultar",
   },
 ];
