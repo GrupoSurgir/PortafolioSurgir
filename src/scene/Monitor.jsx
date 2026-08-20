@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -10,13 +10,14 @@ import StoreApp from "../store/StoreApp.jsx";
 // emisión, sin luz artificial). El marco, el escritorio y el PC se reconocen por
 // la iluminación del espacio; la pantalla es solo un rectángulo oscuro.
 //
-// CLICK EXACTO en el monitor -> BOOT SEQUENCE:
+// PRIMER CLICK EXACTO -> BOOT SEQUENCE:
 //   power line -> neon scan -> system UI -> revelado de la web -> cámara entra
 //   en la pantalla -> web fullscreen.
 //
-// ESC -> vuelve al espacio y el monitor se REARMA: un nuevo click en la pantalla
-// vuelve a ejecutar el arranque y re-entra a la tienda. El indicador
-// "[ EXPLORAR TIENDA ]" solo aparece la PRIMERA vez y no regresa.
+// El PC PERMANECE ENCENDIDO durante toda la sesión. Al volver al espacio (ESC o
+// el botón "Regresar" de la web) la cámara regresa a observar el monitor, que
+// sigue mostrando la aplicación encendida. Un NUEVO click en la pantalla entra
+// DIRECTAMENTE a la web, sin repetir el boot.
 //
 // La pantalla se ilumina SOLO mediante su propio contenido (emissiveMap). No hay
 // PointLight/SpotLight fuerte delante del monitor: el "brillo" nace del arranque
@@ -75,21 +76,17 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
   const [revealed, setRevealed] = useState(false);
   const [hint, setHint] = useState(true); // etiqueta sutil "[ EXPLORAR TIENDA ]"
 
-  // REARMAR: al volver al espacio con ESC el monitor vuelve al estado apagado
-  // para poder ENCENDERLO DE NUEVO y re-entrar a la tienda. El hint NO regresa.
-  const rearm = () => {
-    const s = st.current;
-    s.clicked = false;
-    s.t = 0;
-    s.phase = "off";
-    revealStarted.current = false;
-    enterStarted.current = false;
-    setRevealed(false);
+  // La cámara entra en la pantalla y dispara la apertura de la web. Se usa tanto
+  // al final del PRIMER boot como en los clicks posteriores (PC ya encendido).
+  const enterNow = () => {
+    if (enterStarted.current) return;
+    enterStarted.current = true;
+    const pos = new THREE.Vector3();
+    const quat = new THREE.Quaternion();
+    if (screenMeshRef.current) screenMeshRef.current.getWorldPosition(pos);
+    if (grpRef.current) grpRef.current.getWorldQuaternion(quat);
+    if (pcRef.current.startEnter) pcRef.current.startEnter(pos, quat);
   };
-
-  useEffect(() => {
-    if (pcRef.current) pcRef.current.rearmMonitor = rearm;
-  }, [pcRef]);
 
   // Dibuja la secuencia de arranque en el canvas de la pantalla.
   const draw = (bt, clicked) => {
@@ -268,12 +265,7 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
       }
       // Cámara entra en el monitor (al final del boot).
       if (s.t >= 2.5 && !enterStarted.current && pc.startEnter) {
-        enterStarted.current = true;
-        const pos = new THREE.Vector3();
-        const quat = new THREE.Quaternion();
-        if (screenMeshRef.current) screenMeshRef.current.getWorldPosition(pos);
-        if (grpRef.current) grpRef.current.getWorldQuaternion(quat);
-        pc.startEnter(pos, quat);
+        enterNow();
       }
     }
 
@@ -298,8 +290,14 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
     if (dx * dx + dy * dy > 36) return; // fue arrastre, no click
     const s = st.current;
     const pc = pcRef.current;
-    // Solo el monitor inicia; si ya arrancó, queda bloqueado (interactionLocked).
-    if (s.clicked || pc.booting) return;
+    // Durante el boot el click queda bloqueado.
+    if (pc.booting) return;
+    // El PC ya está ENCENDIDO: entra directamente a la web, sin repetir el boot.
+    if (enterStarted.current) {
+      enterNow();
+      return;
+    }
+    // PRIMER ENCENDIDO: se ejecuta la secuencia de arranque.
     s.clicked = true;
     s.t = 0;
     s.phase = "powering";
@@ -370,7 +368,12 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
           }}
         >
           <div className="monitor-web">
-            <StoreApp storeId={storeId} />
+            <StoreApp
+              storeId={storeId}
+              onExit={() =>
+                pcRef.current.resetView && pcRef.current.resetView()
+              }
+            />
           </div>
         </Html>
       )}

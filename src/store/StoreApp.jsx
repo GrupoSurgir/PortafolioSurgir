@@ -100,7 +100,7 @@ function systemPrefersDark() {
   );
 }
 
-function StoreAppInner({ storeId }) {
+function StoreAppInner({ storeId, onExit }) {
   const [route, setRoute] = useState(parseHash);
   // Menú móvil (hamburguesa). `leaving` mantiene montado el panel durante la
   // animación de cierre; el botón ☰ se transforma en ✕ vía CSS.
@@ -180,6 +180,11 @@ function StoreAppInner({ storeId }) {
 
   const goBack = () => {
     closeMenu();
+    // El botón "Regresar" vuelve a la experiencia 3D (no al historial externo).
+    if (onExit) {
+      onExit();
+      return;
+    }
     if (window.history.length > 1) window.history.back();
     else go("home");
   };
@@ -398,6 +403,6 @@ function StoreAppInner({ storeId }) {
   );
 }
 
-export default function StoreApp({ storeId = "surgir" }) {
-  return <StoreAppInner storeId={storeId} />;
+export default function StoreApp({ storeId = "surgir", onExit }) {
+  return <StoreAppInner storeId={storeId} onExit={onExit} />;
 }

@@ -93,11 +93,19 @@ export default function App() {
     []
   );
 
+  // Volver a la experiencia 3D desde la aplicación. El PC PERMANECE encendido:
+  // solo la cámara regresa a la pose de observación (sin rearmar el boot).
+  const returnToSpace = () => {
+    if (pcRef.current.resetView) pcRef.current.resetView();
+    setPhase("space");
+  };
+
   useEffect(() => {
     pcRef.current.onEnterPage = goToPage;
   }, [goToPage]);
 
-  // ESC: desde la aplicación (página) vuelve a observar el PC en el espacio.
+  // ESC: desde la aplicación (página) vuelve a observar el PC en el espacio,
+  // manteniendo el PC encendido (un nuevo click entra directo a la web).
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== "Escape") return;
@@ -109,11 +117,7 @@ export default function App() {
           el.isContentEditable);
       if (inField) return;
       if (phase === "page") {
-        if (pcRef.current.resetView) pcRef.current.resetView();
-        // Rearma el monitor: al volver al espacio, un nuevo click en la
-        // pantalla vuelve a encender el PC y re-entra a la tienda.
-        if (pcRef.current.rearmMonitor) pcRef.current.rearmMonitor();
-        setPhase("space");
+        returnToSpace();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -173,7 +177,7 @@ export default function App() {
         {/* Aplicación SURGIR a pantalla completa (al entrar en el monitor). */}
         {phase === "page" && (
           <div className="page-wrap">
-            <StoreApp />
+            <StoreApp onExit={returnToSpace} />
           </div>
         )}
 
