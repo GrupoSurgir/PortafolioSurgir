@@ -483,11 +483,16 @@
   margin-top: 16px;
 }
 .sa-link-ext {
+  display: inline-block;
   font-size: 12px;
   color: #9fd2ef;
+  background: transparent;
   border: 1px solid rgba(159, 210, 239, 0.25);
   border-radius: 6px;
   padding: 5px 11px;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 .sa-link-ext:hover {
@@ -791,13 +796,21 @@
   .sa-nav {
     gap: 10px;
     padding: 0 12px;
+    flex-wrap: nowrap;
   }
   .sa-links {
     gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sa-links::-webkit-scrollbar {
+    display: none;
   }
   .sa-link {
     padding: 5px 7px;
     font-size: 10px;
+    white-space: nowrap;
   }
   .sa-search {
     width: 110px;
@@ -810,6 +823,17 @@
   }
   .sa-contact {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .sa-search {
+    display: none;
+  }
+  .sa-nav {
+    gap: 8px;
+  }
+  .sa-links {
+    margin-left: 0;
   }
 }
 
@@ -948,4 +972,224 @@
   color: #7fe0a5;
   font-weight: 600;
   word-break: break-all;
+}
+
+/* ---------- Ficha de producto: secciones ---------- */
+.sa-sub-h {
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #8494ab;
+  margin: 22px 0 8px;
+}
+
+/* ---------- Wiki / documentación ---------- */
+.sa-wiki-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+.sa-icon.lg {
+  font-size: 34px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b1019;
+  border: 1px solid rgba(148, 180, 220, 0.16);
+  border-radius: 14px;
+}
+.sa-wiki-block {
+  border: 1px solid rgba(148, 180, 220, 0.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background: #0b1019;
+}
+.sa-wiki-h {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #9fe9ff;
+  margin: 0 0 8px;
+}
+.sa-wiki-table {
+  display: flex;
+  flex-direction: column;
+}
+.sa-wiki-row {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(148, 180, 220, 0.08);
+  font-size: 13px;
+  color: #c4d0e0;
+}
+.sa-wiki-row:last-child {
+  border-bottom: none;
+}
+.sa-wiki-code {
+  background: rgba(127, 233, 255, 0.08);
+  border: 1px solid rgba(127, 233, 255, 0.18);
+  color: #9fe9ff;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.sa-wiki-chg {
+  margin-bottom: 12px;
+}
+.sa-wiki-chg:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Descargas / pedidos ---------- */
+.sa-dl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0;
+}
+.sa-dl-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid rgba(148, 180, 220, 0.16);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #0b1019;
+}
+.sa-dl-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ---------- Avatar / cuenta ---------- */
+.sa-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.sa-auth-btn.sm {
+  padding: 8px 12px;
+  font-size: 13px;
+  max-width: none;
+}
+
+/* ---------- 404 ---------- */
+.sa-404 {
+  font-size: 84px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #7fe9ff;
+  text-shadow: 0 0 30px rgba(127, 233, 255, 0.4);
+  line-height: 1;
+}
+
+/* ---------- Checkout / login / pedido / resultado ----------
+   Pantallas del flujo de compra presentadas como tarjetas reales:
+   nunca como una lista vertical de texto suelto. */
+.sa-checkout-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 22px;
+  align-items: start;
+  margin-top: 18px;
+}
+.sa-login-card,
+.sa-order-card {
+  background: #0b1019;
+  border: 1px solid rgba(148, 180, 220, 0.16);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+}
+.sa-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  color: #8494ab;
+  font-size: 13px;
+}
+.sa-result-card {
+  background:
+    radial-gradient(500px 200px at 85% -10%, rgba(127, 233, 255, 0.1), transparent 60%),
+    #0b1019;
+  border: 1px solid rgba(148, 180, 220, 0.16);
+  border-radius: 16px;
+  padding: 26px 24px;
+  margin-top: 14px;
+}
+.sa-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(148, 180, 220, 0.08);
+  font-size: 13px;
+  color: #8494ab;
+}
+.sa-result-row span:last-child {
+  color: #dbe4f0;
+  text-align: right;
+}
+.sa-result-ok {
+  color: #7fe0a5;
+  font-weight: 600;
+}
+.sa-result-delivery {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.sa-result-chan {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  border: 1px solid rgba(148, 180, 220, 0.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #0d1521;
+}
+.sa-result-ico {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(127, 233, 255, 0.1);
+  border: 1px solid rgba(127, 233, 255, 0.2);
+  color: #7fe9ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* ---------- Responsive del flujo de compra ---------- */
+@media (max-width: 720px) {
+  .sa-checkout-grid {
+    grid-template-columns: 1fr;
+  }
+  .sa-result-card {
+    padding: 20px 16px;
+  }
+  .sa-result-row {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sa-result-row span:last-child {
+    text-align: left;
+  }
 }

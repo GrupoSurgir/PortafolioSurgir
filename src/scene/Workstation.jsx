@@ -5,10 +5,19 @@ import Monitor from "./Monitor.jsx";
 // Estación de trabajo: escritorio + PC + teclado + mouse + monitor.
 // Materiales grises medios (no negros) para que la lámpara cenital los
 // revele de inmediato. El PC recibe luz desde arriba; no es fuente de luz.
+//
+// `position`/`rotationY`/`storeId` permiten montar VARIAS mesas-tienda:
+// cada escritorio trae su propio monitor con su propia tienda (storeId).
 
 const DESK_TOP_Y = 0.74;
 
-export default function Workstation({ wakeRef, pcRef }) {
+export default function Workstation({
+  wakeRef,
+  pcRef,
+  position = [0, 0, 0],
+  rotationY = 0,
+  storeId = "surgir",
+}) {
   const statusMat = useRef();
   const caseLight = useRef();
 
@@ -20,7 +29,7 @@ export default function Workstation({ wakeRef, pcRef }) {
   });
 
   return (
-    <group position={[0, 0, 0]}>
+    <group position={position} rotation={[0, rotationY, 0]}>
       {/* ---------- ESCRITORIO ---------- */}
       <mesh position={[0, DESK_TOP_Y, -0.1]} castShadow receiveShadow>
         <boxGeometry args={[2.4, 0.06, 1.0]} />
@@ -59,7 +68,7 @@ export default function Workstation({ wakeRef, pcRef }) {
       </group>
 
       {/* ---------- MONITOR (interactivo) ---------- */}
-      <Monitor pcRef={pcRef} />
+      <Monitor pcRef={pcRef} storeId={storeId} />
 
       {/* ---------- TECLADO ---------- */}
       <mesh position={[0, DESK_TOP_Y + 0.018, 0.18]} castShadow receiveShadow>

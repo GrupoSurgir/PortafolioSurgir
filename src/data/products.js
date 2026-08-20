@@ -1,18 +1,17 @@
-// PRODUCTOS DE SURGIR — capa de datos administrable.
+// PRODUCTOS DE SURGIRSTUDIO — capa de datos administrable.
 //
 // Para agregar un producto nuevo basta con añadir un objeto a `products`.
-// La interfaz (tienda, tarjetas, detalle) se adapta automáticamente.
+// La interfaz (tienda, tarjetas, detalle, wiki) se adapta automáticamente.
 // Posteriormente estos datos pueden venir de una API / CMS / base de datos
 // sin cambiar la UI.
 //
-// Campos útiles:
-//   price: 0        -> producto GRATIS (se descarga directamente, sin carrito)
-//   price: > 0      -> producto de pago (carrito -> checkout)
-//   downloadUrl     -> archivo descargable (ej: /downloads/mi-archivo.zip)
+// Campos:
+//   price: 0        -> producto GRATIS (flujo: carrito -> checkout $0 -> pedido)
+//   price: > 0      -> producto de pago (carrito -> checkout; pago próximamente)
+//   downloadUrl     -> archivo descargable tras crear el pedido
 //   status          -> "Disponible" | "Próximamente" | "En preparación"
-//
-// La tienda queda limpia de publicaciones de prueba: por ahora solo contiene
-// el plugin de prueba "Surgir Entregas" (gratis y configurable).
+//   author, version, compatibility, requirements, installation, commands,
+//   permissions, changelog, wiki -> página completa del producto.
 
 export const categories = [
   { slug: "plugins", name: "Plugins" },
@@ -29,27 +28,78 @@ export const products = [
   {
     id: "surgir-entregas",
     slug: "surgir-entregas",
-    name: "Surgir Entregas",
+    name: "SurgirEntregas",
     category: "plugins",
     price: 0,
     status: "Disponible",
     featured: true,
     version: "1.0.0",
-    compatibility: "Paper / Spigot / Folia",
+    compatibility: "Paper / Spigot / Folia · API 1.20",
+    author: "Samuel Buritica",
+    studio: "SurgirStudio",
     icon: "📦",
-    tagline: "Plugin para vender y entregar ítems entre jugadores. Gratis.",
+    tagline: "Plugin para vender ítems y gestionar entregas entre jugadores.",
     shortDescription:
-      "Plugin de prueba de SURGIR: permite al servidor configurar ventas de ítems y entregas entre jugadores. Gratis y descargable.",
+      "Sistema de venta de ítems y entregas para servidores Minecraft: comandos configurables, permisos por rol y configuración por archivo.",
     description:
-      "Surgir Entregas es un plugin de prueba de SURGIR para vender ítems y gestionar entregas dentro de tu servidor Minecraft. Incluye configuración completa por archivo (config.yml): precio por ítem, comando de compra, mensajes, permisos y recompensas. Es gratis (0 pesos): descárgalo, edita su configuración y pruébalo en tu servidor.",
+      "SurgirEntregas es un plugin de SurgirStudio para vender ítems y gestionar entregas dentro de tu servidor Minecraft. Cada ítem de la tienda ejecuta cualquier comando al comprarse, de modo que puedes vender items, kits, monedas y más sin escribir código. Incluye configuración completa por archivo (config.yml), permisos por rol y un sistema de entregas entre jugadores.",
     features: [
       "Venta de ítems con comandos configurables",
+      "Cada ítem ejecuta cualquier comando al comprarse",
       "Entrega de paquetes entre jugadores",
       "Configuración completa por archivo (config.yml)",
       "Permisos por rol y por ítem",
       "Mensajes y precios editables sin tocar código",
-      "Plugin de prueba de SURGIR (0 pesos)",
+      "Licencia gratuita (0 pesos)",
     ],
+    requirements: ["Java 17+", "Paper o Spigot 1.18–1.20+", "Folia (experimental)"],
+    installation: [
+      "Descarga el archivo SurgirEntregas.zip desde tu cuenta.",
+      "Descomprime y copia el contenido en la carpeta plugins/ del servidor.",
+      "Reinicia el servidor.",
+      "Se genera plugins/SurgirEntregas/config.yml: edítalo con tus ítems y precios.",
+      "Recarga la configuración con /entrega reload.",
+    ],
+    commands: [
+      { cmd: "/entrega help", desc: "Muestra la ayuda del plugin." },
+      { cmd: "/entrega shop", desc: "Abre la lista de ítems a la venta." },
+      { cmd: "/entrega buy <id>", desc: "Compra un ítem por su ID." },
+      { cmd: "/entrega reload", desc: "Recarga la configuración (admin)." },
+    ],
+    permissions: [
+      { node: "surgir.entregas.use", desc: "Usa los comandos básicos.", def: "todos" },
+      { node: "surgir.entregas.buy", desc: "Compra ítems.", def: "todos" },
+      { node: "surgir.entregas.admin", desc: "Reload y administración.", def: "op" },
+      { node: "surgir.entregas.roles.vip", desc: "Acceso a ítems VIP (ejemplo).", def: "opcional" },
+    ],
+    changelog: [
+      {
+        version: "1.0.0",
+        date: "Primera versión",
+        notes: [
+          "Venta de ítems con comandos configurables.",
+          "Sistema de entregas entre jugadores.",
+          "Configuración completa por archivo.",
+          "Permisos por rol y por ítem.",
+        ],
+      },
+    ],
+    wiki: {
+      what: "SurgirEntregas permite a tu servidor vender ítems y gestionar entregas entre jugadores usando únicamente archivos de configuración: no necesitas tocar código para añadir productos a la tienda.",
+      config: [
+        "Cada ítem se define en config.yml con material, nombre, precio, permiso opcional y el comando que se ejecuta al comprar.",
+        "%player% se reemplaza por el jugador que compró.",
+        "Los mensajes usan códigos de color (&) y se editan en la sección messages.",
+        "El sistema de entregas permite enviar paquetes entre jugadores con expiración configurable.",
+      ],
+      economy:
+        "El plugin usa la moneda definida en config.yml (currency-name). En la versión actual la compra se simula ejecutando el comando del ítem; la integración con economías externas (Vault) se preparará en próximas versiones.",
+      ads:
+        "SurgirEntregas no muestra anuncios. Es software gratuito de SurgirStudio.",
+      architecture:
+        "SurgirEntregas está estructurado como un plugin Bukkit estándar: una clase principal (SurgirEntregas) carga la configuración, registra el comando /entrega (EntregaCommand) y expone el sistema de entregas. Desarrollado con Java y la API de Bukkit/Paper, compilado con Maven.",
+      tech: ["Java 17", "Bukkit/Spigot API", "Paper API 1.20", "Maven", "Git"],
+    },
     tags: ["minecraft", "ventas", "entregas", "items", "plugin"],
     image: "",
     downloadUrl: "/downloads/surgir-entregas.zip",

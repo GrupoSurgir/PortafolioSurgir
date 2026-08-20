@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -13,6 +13,10 @@ import StoreApp from "../store/StoreApp.jsx";
 // CLICK EXACTO en el monitor -> BOOT SEQUENCE:
 //   power line -> neon scan -> system UI -> revelado de la web -> cámara entra
 //   en la pantalla -> web fullscreen.
+//
+// ESC -> vuelve al espacio y el monitor se REARMA: un nuevo click en la pantalla
+// vuelve a ejecutar el arranque y re-entra a la tienda. El indicador
+// "[ EXPLORAR TIENDA ]" solo aparece la PRIMERA vez y no regresa.
 //
 // La pantalla se ilumina SOLO mediante su propio contenido (emissiveMap). No hay
 // PointLight/SpotLight fuerte delante del monitor: el "brillo" nace del arranque
@@ -29,7 +33,7 @@ function smooth(a, b, x) {
   return t * t * (3 - 2 * t);
 }
 
-export default function Monitor({ pcRef }) {
+export default function Monitor({ pcRef, storeId = "surgir" }) {
   const canvas = useMemo(() => {
     const c = document.createElement("canvas");
     c.width = W;
@@ -70,6 +74,22 @@ export default function Monitor({ pcRef }) {
   const enterStarted = useRef(false);
   const [revealed, setRevealed] = useState(false);
   const [hint, setHint] = useState(true); // etiqueta sutil "[ EXPLORAR TIENDA ]"
+
+  // REARMAR: al volver al espacio con ESC el monitor vuelve al estado apagado
+  // para poder ENCENDERLO DE NUEVO y re-entrar a la tienda. El hint NO regresa.
+  const rearm = () => {
+    const s = st.current;
+    s.clicked = false;
+    s.t = 0;
+    s.phase = "off";
+    revealStarted.current = false;
+    enterStarted.current = false;
+    setRevealed(false);
+  };
+
+  useEffect(() => {
+    if (pcRef.current) pcRef.current.rearmMonitor = rearm;
+  }, [pcRef]);
 
   // Dibuja la secuencia de arranque en el canvas de la pantalla.
   const draw = (bt, clicked) => {
@@ -350,7 +370,7 @@ export default function Monitor({ pcRef }) {
           }}
         >
           <div className="monitor-web">
-            <StoreApp />
+            <StoreApp storeId={storeId} />
           </div>
         </Html>
       )}

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { site } from "../data/site.js";
 import { useCart } from "../hooks/useCart.jsx";
 import { usePayments } from "./PaymentsContext.jsx";
 import { useAuth } from "./AuthContext.jsx";
+import { useOrders } from "./OrdersContext.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import StorePage from "./pages/StorePage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
@@ -13,6 +14,8 @@ import ContactPage from "./pages/ContactPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
+import WikiPage from "./pages/WikiPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 import "./store.css";
 
 const NAV = [
@@ -25,26 +28,106 @@ const NAV = [
   { id: "account", label: "Cuenta" },
 ];
 
-function StoreAppInner() {
+// Routing por hash: URLs directas (/#/store, /#/product/surgir-entregas, …)
+// que funcionan al recargar gracias al SPA fallback de Netlify.
+function parseHash() {
+  const raw = window.location.hash.replace(/^#/, "") || "/";
+  const [pathPart, queryPart] = raw.split("?");
+  const segs = pathPart.split("/").filter(Boolean);
+  const params = {};
+  if (queryPart) {
+    new URLSearchParams(queryPart).forEach((v, k) => {
+      params[k] = v;
+    });
+  }
+  if (segs.length === 0 || segs[0] === "home") return { page: "home", params };
+  switch (segs[0]) {
+    case "store":
+      return { page: "shop", params };
+    case "product":
+      return { page: "product", params: { ...params, slug: segs[1] } };
+    case "wiki":
+      return { page: "wiki", params: { ...params, slug: segs[1] } };
+    case "services":
+      return { page: "services", params };
+    case "projects":
+      return { page: "projects", params };
+    case "about":
+      return { page: "about", params };
+    case "contact":
+      return { page: "contact", params };
+    case "account":
+      return { page: "account", params };
+    case "cart":
+      return { page: "cart", params };
+    case "checkout":
+      return { page: "checkout", params };
+    default:
+      return { page: "notfound", params };
+  }
+}
+
+function pathFor(page, params = {}) {
+  switch (page) {
+    case "shop":
+      return "#/store" + (params.q ? `?q=${encodeURIComponent(params.q)}` : "");
+    case "product":
+      return `#/product/${params.slug}`;
+    case "wiki":
+      return `#/wiki/${params.slug}`;
+    case "services":
+      return "#/services";
+    case "projects":
+      return "#/projects";
+    case "about":
+      return "#/about";
+    case "contact":
+      return "#/contact";
+    case "account":
+      return "#/account";
+    case "cart":
+      return "#/cart";
+    case "checkout":
+      return "#/checkout";
+    case "notfound":
+      return "#/notfound";
+    default:
+      return "#/";
+  }
+}
+
+function StoreAppInner({ storeId }) {
   usePayments();
   const cart = useCart();
   const auth = useAuth();
-  const [route, setRoute] = useState({ page: "home", params: {} });
+  const orders = useOrders();
+  const [route, setRoute] = useState(parseHash);
   const [search, setSearch] = useState("");
 
+  // Sincronizar con el hash (botones atrás/adelante y recargas).
+  useEffect(() => {
+    const onHash = () => setRoute(parseHash());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
   const navigate = (page, params = {}) => {
-    setRoute({ page, params });
+    const hash = pathFor(page, params);
+    if (window.location.hash === hash) setRoute(parseHash());
+    else window.location.hash = hash;
     const el = document.querySelector(".sa-content");
     if (el) el.scrollTop = 0;
   };
 
   const renderPage = () => {
-    const props = { navigate, cart, params: route.params };
+    const props = { navigate, cart, params: route.params, auth, orders, storeId };
     switch (route.page) {
       case "shop":
         return <StorePage {...props} />;
       case "product":
         return <ProductDetailPage {...props} />;
+      case "wiki":
+        return <WikiPage {...props} />;
       case "services":
         return <ServicesPage {...props} />;
       case "projects":
@@ -59,6 +142,8 @@ function StoreAppInner() {
         return <CheckoutPage {...props} />;
       case "account":
         return <AccountPage {...props} />;
+      case "notfound":
+        return <NotFoundPage {...props} />;
       case "home":
       default:
         return <HomePage {...props} />;
@@ -103,7 +188,11 @@ function StoreAppInner() {
         >
           {auth.user ? (
             <span className="sa-avatar sm">
-              {auth.user.avatar || auth.user.name.charAt(0)}
+              {auth.user.avatar ? (
+                <img className="sa-avatar-img" src={auth.user.avatar} alt="" />
+              ) : (
+                auth.user.name.charAt(0)
+              )}
             </span>
           ) : (
             "Cuenta"
@@ -118,8 +207,8 @@ function StoreAppInner() {
 
       <div className="sa-footer">
         <div>
-          <b>SURGIR</b>
-          <a onClick={() => navigate("about")}>Sobre SURGIR</a>
+          <b>{site.name}</b>
+          <a onClick={() => navigate("about")}>Sobre SurgirStudio</a>
           <a onClick={() => navigate("projects")}>Proyectos</a>
         </div>
         <div>
@@ -129,13 +218,14 @@ function StoreAppInner() {
           <a onClick={() => navigate("contact")}>Contacto</a>
         </div>
         <div className="sa-foot-brand">
-          © {new Date().getFullYear()} {site.name}. Todos los derechos reservados.
+          © {new Date().getFullYear()} {site.name} · {site.author}. Todos los
+          derechos reservados.
         </div>
       </div>
     </div>
   );
 }
 
-export default function StoreApp() {
-  return <StoreAppInner />;
+export default function StoreApp({ storeId = "surgir" }) {
+  return <StoreAppInner storeId={storeId} />;
 }

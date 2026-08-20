@@ -1,10 +1,15 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { auth, isOAuthConfigured } from "../data/auth.js";
+import { auth, isOAuthConfigured, AUTH_BASE } from "../data/auth.js";
 
-// Sesión de usuario de SURGIR (Google / Discord).
-// En modo demo se simula el inicio de sesión; con OAuth configurado se
-// redirige al proveedor y el backend crea la sesión real.
-// Persistencia en localStorage (clave "surgir-session").
+// Sesión de usuario de SurgirStudio (Google / Discord).
+//
+// MODO DEMO (VITE_AUTH_DEMO=true, por defecto):
+//   - La sesión se simula y se guarda en localStorage ("surgir-session").
+// MODO REAL (VITE_AUTH_DEMO=false):
+//   - signIn redirige a la Netlify Function (OAuth2 con Google/Discord).
+//   - Al montar, se restaura la sesión consultando `?action=me`.
+//   - La sesión real es una cookie HttpOnly validada por el backend; el
+//     frontend NO confía en localStorage para autenticación real.
 
 const SESSION_KEY = "surgir-session";
 const AuthContext = createContext(null);
@@ -20,41 +25,53 @@ function loadSession() {
   return null;
 }
 
-function buildOAuthUrl(providerId) {
-  const p = auth.providers?.[providerId];
-  if (!p || !p.clientId || !p.redirectUri) return null;
-  const u = new URL(p.authUrl);
-  u.searchParams.set("client_id", p.clientId);
-  u.searchParams.set("redirect_uri", p.redirectUri);
-  u.searchParams.set("response_type", "code");
-  u.searchParams.set("scope", p.scope);
-  return u.toString();
-}
-
 // Perfiles de demostración (sin backend). La interfaz nunca simula un pago,
 // pero sí permite probar el flujo de "registrarse con Google/Discord".
 const DEMO_PROFILES = {
   google: {
     provider: "google",
     providerLabel: "Google",
-    name: "Jugador SURGIR",
+    name: "Jugador SurgirStudio",
     email: "jugador.demo@gmail.com",
     avatar: "G",
   },
   discord: {
     provider: "discord",
     providerLabel: "Discord",
-    name: "Jugador SURGIR",
+    name: "Jugador SurgirStudio",
     email: "jugador.demo@discord",
     avatar: "D",
   },
 };
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadSession);
-  const [busy, setBusy] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(auth.demo ? false : true);
 
+  // En modo real: restaura la sesión desde el backend (cookie HttpOnly).
   useEffect(() => {
+    if (auth.demo) return;
+    let active = true;
+    fetch(`${AUTH_BASE}?action=me`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : Promise.resolve(null)))
+      .then((profile) => {
+        if (!active) return;
+        setUser(profile);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setUser(null);
+        setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Modo demo: persiste la sesión simulada.
+  useEffect(() => {
+    if (!auth.demo) return;
     try {
       if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
       else localStorage.removeItem(SESSION_KEY);
@@ -63,40 +80,44 @@ export function AuthProvider({ children }) {
 
   const value = useMemo(() => {
     const signIn = (providerId) => {
-      const url = buildOAuthUrl(providerId);
-      if (url) {
-        // OAuth real configurado: el navegador va al proveedor.
-        window.location.assign(url);
+      if (!auth.demo) {
+        // OAuth real: el navegador va a la Netlify Function.
+        window.location.assign(`${AUTH_BASE}?action=login&provider=${providerId}`);
         return;
       }
-      // Modo demo: simula el registro con el proveedor.
-      setBusy(true);
-      setTimeout(() => {
-        const profile =
-          DEMO_PROFILES[providerId] || {
-            provider: providerId,
-            providerLabel: providerId,
-            name: "Jugador SURGIR",
-            email: `${providerId}@surgir.demo`,
-            avatar: "?",
-          };
-        setUser(profile);
-        setBusy(false);
-      }, 600);
+      setUser(
+        DEMO_PROFILES[providerId] || {
+          provider: providerId,
+          providerLabel: providerId,
+          name: "Jugador SurgirStudio",
+          email: `${providerId}@surgir.demo`,
+          avatar: "?",
+        }
+      );
     };
 
-    const signOut = () => setUser(null);
+    const signOut = () => {
+      if (!auth.demo) {
+        fetch(`${AUTH_BASE}?action=logout`, {
+          method: "POST",
+          credentials: "include",
+        }).catch(() => {});
+        setUser(null);
+        return;
+      }
+      setUser(null);
+    };
 
     return {
       user,
-      busy,
+      loading,
       signIn,
       signOut,
       providers: auth.providers,
       demo: auth.demo,
       isOAuthConfigured,
     };
-  }, [user, busy]);
+  }, [user, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

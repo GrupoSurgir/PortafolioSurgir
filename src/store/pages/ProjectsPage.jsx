@@ -6,7 +6,7 @@ export default function ProjectsPage() {
     <div className="sa-wrap">
       <h1 className="sa-h1">Proyectos</h1>
       <p className="sa-lead">
-        Proyectos realizados por SURGIR dentro del ecosistema de plugins,
+        Proyectos realizados por SurgirStudio dentro del ecosistema de plugins,
         sistemas y aplicaciones web.
       </p>
 

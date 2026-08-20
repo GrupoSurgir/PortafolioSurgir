@@ -6,6 +6,7 @@ import AdminPanel from "./components/AdminPanel.jsx";
 import StoreApp from "./store/StoreApp.jsx";
 import { PaymentsProvider } from "./store/PaymentsContext.jsx";
 import { AuthProvider } from "./store/AuthContext.jsx";
+import { OrdersProvider } from "./store/OrdersContext.jsx";
 import { CartProvider } from "./hooks/useCart.jsx";
 import { useAmbientAudio } from "./components/AudioEngine.js";
 import { computeWake } from "./wake.js";
@@ -113,6 +114,9 @@ export default function App() {
       if (inField) return;
       if (phase === "page") {
         if (pcRef.current.resetView) pcRef.current.resetView();
+        // Rearma el monitor: al volver al espacio, un nuevo click en la
+        // pantalla vuelve a encender el PC y re-entra a la tienda.
+        if (pcRef.current.rearmMonitor) pcRef.current.rearmMonitor();
         setPhase("space");
       }
     };
@@ -130,6 +134,7 @@ export default function App() {
     <AuthProvider>
       <PaymentsProvider>
         <CartProvider>
+          <OrdersProvider>
           <div className="relative h-screen w-screen bg-black">
             {/* Espacio 3D: montado desde el inicio. El PC es el centro; al hacer
                 click en la pantalla se enciende y la cámara entra en él. */}
@@ -194,6 +199,7 @@ export default function App() {
               />
             )}
           </div>
+          </OrdersProvider>
         </CartProvider>
       </PaymentsProvider>
     </AuthProvider>

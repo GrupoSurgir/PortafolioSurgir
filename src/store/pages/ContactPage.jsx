@@ -28,7 +28,9 @@ export default function ContactPage({ navigate }) {
         .then((r) => (r.ok ? done() : fail()))
         .catch(fail);
     } else {
-      setTimeout(done, 900);
+      // Sin endpoint configurado: NO se simula un envío real. Se muestra un
+      // estado claro de "preparado" hasta conectar el backend.
+      setTimeout(() => setStatus("demo"), 500);
     }
   };
 
@@ -73,6 +75,13 @@ export default function ContactPage({ navigate }) {
           {status === "ok" && (
             <div className="sa-msg ok">
               Mensaje enviado. Te responderemos pronto.
+            </div>
+          )}
+          {status === "demo" && (
+            <div className="sa-msg">
+              Formulario validado y preparado, pero el envío real aún no está
+              conectado. Configura <code>VITE_CONTACT_ENDPOINT</code> (backend)
+              para activarlo.
             </div>
           )}
           {status === "err" && (

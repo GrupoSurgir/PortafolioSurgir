@@ -4,7 +4,7 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import Environment from "./Environment.jsx";
 import Workstation from "./Workstation.jsx";
-import Monitor from "./Monitor.jsx";
+import { WORKSTATIONS } from "../data/workspaces.js";
 import { computeWake } from "../wake.js";
 import { getEnvironment } from "../environments.js";
 
@@ -275,7 +275,16 @@ function SceneContents({ wakeRef, startedRef, pcRef, environmentId, onGl }) {
       <directionalLight position={[-4, 3, -5]} intensity={0.5} color="#5b6a9a" />
 
       <Environment environmentId={environmentId} />
-      <Workstation wakeRef={wakeRef} pcRef={pcRef} />
+      {WORKSTATIONS.map((w) => (
+        <Workstation
+          key={w.id}
+          wakeRef={wakeRef}
+          pcRef={pcRef}
+          position={w.position}
+          rotationY={w.rotationY}
+          storeId={w.storeId}
+        />
+      ))}
 
       <CameraControls pcRef={pcRef} />
     </>

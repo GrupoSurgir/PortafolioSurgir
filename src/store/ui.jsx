@@ -30,11 +30,10 @@ export function ProductCard({ p, onOpen, onAdd }) {
         disabled={unavailable}
         onClick={(e) => {
           e.stopPropagation();
-          if (free) onOpen(p.slug);
-          else onAdd(p.slug);
+          onAdd(p.slug);
         }}
       >
-        {unavailable ? "Próximamente" : free ? "Ver y descargar" : "Agregar al carrito"}
+        {unavailable ? "Próximamente" : free ? "Agregar al carrito · $0" : "Agregar al carrito"}
       </button>
     </div>
   );
