@@ -1,48 +1,11 @@
-import { useState } from "react";
+// Formulario de contacto NATIVO (HTML), sin JavaScript en el envío.
+// Netlify detecta el formulario en el build y recibe los envíos en su panel.
+// Atributos: name="contact" + data-netlify (detección), honeypot anti-spam y
+// URL de éxito. Después del envío Netlify redirige a /#/contact?sent=1 y la
+// app muestra la confirmación al entrar.
 
-// Formulario de contacto → Netlify Forms.
-// En producción (Netlify) el envío es REAL: el mensaje queda en el panel de
-// Forms y llega por correo a la notificación configurada en el dashboard.
-// En local NO se simula el envío: se muestra un estado claro.
-
-export default function ContactPage() {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
-  const [status, setStatus] = useState("idle");
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const submit = (e) => {
-    e.preventDefault();
-    if (!form.name || !form.email || !form.message) {
-      setStatus("err");
-      return;
-    }
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) {
-      setStatus("err");
-      return;
-    }
-    const host = window.location.hostname;
-    if (host === "localhost" || host === "127.0.0.1") {
-      setStatus("demo");
-      return;
-    }
-    setStatus("sending");
-    const body = new URLSearchParams({
-      "form-name": "contact",
-      "bot-field": "",
-      name: form.name,
-      email: form.email,
-      subject: form.subject,
-      message: form.message,
-    });
-    fetch("/", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString(),
-    })
-      .then((r) => setStatus(r.ok ? "ok" : "err"))
-      .catch(() => setStatus("err"));
-  };
-
+export default function ContactPage({ params }) {
+  const sent = params?.sent === "1";
   return (
     <div className="sa-wrap" style={{ maxWidth: 640 }}>
       <h1 className="sa-h1">Contacto</h1>
@@ -51,54 +14,41 @@ export default function ContactPage() {
         dudas.
       </p>
 
+      {sent && (
+        <div className="sa-msg ok" style={{ marginTop: 16 }}>
+          Mensaje enviado. Gracias, te responderemos pronto.
+        </div>
+      )}
+
       <form
         className="sa-form"
         style={{ marginTop: 20 }}
         name="contact"
+        method="post"
+        action="/"
         data-netlify="true"
         data-netlify-honeypot="bot-field"
-        onSubmit={submit}
+        data-netlify-success-url="/#/contact?sent=1"
       >
-        <label>Nombre</label>
-        <input className="sa-input" value={form.name} onChange={set("name")} />
-        <label>Correo</label>
+        <input type="hidden" name="form-name" value="contact" />
+        <input type="hidden" name="bot-field" value="" />
+        <label htmlFor="c-name">Nombre</label>
+        <input id="c-name" className="sa-input" name="name" required />
+        <label htmlFor="c-email">Correo</label>
         <input
+          id="c-email"
           className="sa-input"
           type="email"
-          value={form.email}
-          onChange={set("email")}
+          name="email"
+          required
         />
-        <label>Asunto</label>
-        <input className="sa-input" value={form.subject} onChange={set("subject")} />
-        <label>Mensaje</label>
-        <textarea
-          className="sa-area"
-          value={form.message}
-          onChange={set("message")}
-        />
-        <button
-          className="sa-btn accent block"
-          type="submit"
-          disabled={status === "sending"}
-        >
-          {status === "sending" ? "Enviando..." : "Enviar mensaje"}
+        <label htmlFor="c-subject">Asunto</label>
+        <input id="c-subject" className="sa-input" name="subject" />
+        <label htmlFor="c-message">Mensaje</label>
+        <textarea id="c-message" className="sa-area" name="message" required />
+        <button className="sa-btn accent block" type="submit">
+          Enviar mensaje
         </button>
-        {status === "ok" && (
-          <div className="sa-msg ok">
-            Mensaje enviado. Gracias, te responderemos pronto.
-          </div>
-        )}
-        {status === "demo" && (
-          <div className="sa-msg">
-            En local no se envía el mensaje. Despliega en Netlify y configura en
-            el panel la notificación por correo para recibir los mensajes.
-          </div>
-        )}
-        {status === "err" && (
-          <div className="sa-msg err">
-            No se pudo enviar. Revisa nombre, correo y mensaje.
-          </div>
-        )}
       </form>
     </div>
   );

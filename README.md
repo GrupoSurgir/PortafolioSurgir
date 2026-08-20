@@ -132,16 +132,16 @@ enviará por correo desde el servidor; la UI ya está preparada para ese momento
 
 ## Contacto (Netlify Forms)
 
-La página **Contacto** solo tiene el formulario (sin canales). En Netlify el
-envío es real: el formulario `contact` se registra automáticamente en **Netlify
-Forms** (hay un form de referencia oculto en `index.html` para que el build lo
-detecte). Para recibir los mensajes en tu correo:
+La página **Contacto** es un formulario HTML nativo con atributo
+`data-netlify` (y un form de referencia oculto en `index.html`). Netlify
+detecta el formulario en el build y recibe los envíos en su panel **sin código
+de servidor ni JavaScript** en el envío. Para recibir los mensajes en tu correo:
 
 1. Despliega el sitio en Netlify.
 2. Ve a **Site settings → Forms → Form notifications → Add notification → Email**.
 3. Escribe tu correo (ej. `samuelburitica681@gmail.com`).
-4. Los mensajes del formulario llegarán a ese correo. En local (dev) el envío
-   no se simula: se muestra el estado "preparado".
+4. Los mensajes del formulario llegarán a ese correo. Tras enviar, Netlify
+   redirige a `/#/contact?sent=1` y la app muestra la confirmación.
 
 ## Cuenta / autenticación
 
