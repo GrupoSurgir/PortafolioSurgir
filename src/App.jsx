@@ -106,9 +106,9 @@ export default function App() {
   const returnToSpace = () => {
     if (pcRef.current.resetView) pcRef.current.resetView();
     setPhase("space");
+    setPoweredOn(true);
     // La instancia de StoreApp del monitor aplica el último scroll guardado.
     notifyWebVisible();
-    // No resetear poweredOn: el PC se queda encendido durante toda la sesión.
   };
 
   // Manejar click en la CPU/torre: alterna encendido/apagado
