@@ -1,0 +1,48 @@
+import { categoryName } from "../data/products.js";
+
+// Componentes UI compartidos de la aplicación SURGIR.
+
+export function StatusPill({ status }) {
+  const cls =
+    status === "Próximamente" || status === "En preparación"
+      ? "soon"
+      : status === "Disponible"
+      ? ""
+      : "off";
+  return <span className={`sa-pill ${cls}`}>{status}</span>;
+}
+
+export function ProductCard({ p, onOpen, onAdd }) {
+  const unavailable = p.status === "Próximamente" || p.status === "En preparación";
+  return (
+    <div className="sa-card" onClick={() => onOpen(p.slug)}>
+      <div className="sa-icon">{p.icon || p.name.charAt(0)}</div>
+      <div className="sa-name">{p.name}</div>
+      <div className="sa-cat">{categoryName(p.category)}</div>
+      <p className="sa-desc">{p.shortDescription || p.tagline}</p>
+      <div className="sa-price-row">
+        <span className="sa-price">${p.price}</span>
+        <StatusPill status={p.status} />
+      </div>
+      <button
+        className="sa-btn ghost block"
+        disabled={unavailable}
+        onClick={(e) => {
+          e.stopPropagation();
+          onAdd(p.slug);
+        }}
+      >
+        {unavailable ? "Próximamente" : "Agregar al carrito"}
+      </button>
+    </div>
+  );
+}
+
+export function SectionHeader({ title, lead }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <h1 className="sa-h1">{title}</h1>
+      {lead && <p className="sa-lead">{lead}</p>}
+    </div>
+  );
+}

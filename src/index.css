@@ -1,0 +1,457 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  overflow: hidden;
+  font-family: "General Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+canvas {
+  display: block;
+  outline: none;
+}
+
+/* ---------- Espacio 3D (cosmos) ---------- */
+.scene-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+/* Engranaje: abre configuración durante la experiencia 3D (discreto). */
+.gear-btn {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 60;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 20, 24, 0.55);
+  color: #b9bcc4;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 15px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.gear-btn:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Marca SURGIR arriba de la experiencia 3D (espacio). */
+.space-logo {
+  position: fixed;
+  top: 12px;
+  left: 14px;
+  z-index: 58;
+  height: 30px;
+  width: auto;
+  background: #ffffff;
+  padding: 3px 8px;
+  border-radius: 3px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+/* Aplicación SURGIR a pantalla completa tras entrar en el monitor. Aparece
+   fundiéndose sobre el 3D (crossfade), sin salto duro ni flash negro. */
+.page-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: #05070d;
+  opacity: 0;
+  animation: pageFade 0.6s ease forwards;
+}
+@keyframes pageFade {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Web proyectada en la pantalla del PC: se revela con la secuencia de boot. */
+.monitor-web {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  animation: webFade 0.7s ease forwards;
+}
+@keyframes webFade {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- Guía de bienvenida de la Experiencia SURGIR ---------- */
+.exp-guide {
+  position: fixed;
+  left: 50%;
+  bottom: 46px;
+  transform: translateX(-50%);
+  z-index: 60;
+  width: min(560px, calc(100vw - 32px));
+  padding: 22px 24px;
+  background: rgba(16, 18, 26, 0.72);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(150, 200, 230, 0.22);
+  border-radius: 14px;
+  color: #e8eef6;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  box-shadow: 0 0 40px rgba(120, 180, 220, 0.15);
+  opacity: 1;
+  transition: opacity 1.2s ease;
+  pointer-events: none;
+}
+.exp-guide.closing {
+  opacity: 0;
+}
+.exp-guide .eg-title {
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #9fdcff;
+  margin: 0 0 4px;
+}
+.exp-guide .eg-sub {
+  font-size: 13px;
+  color: #b9c4d2;
+  margin: 0 0 14px;
+}
+.exp-guide ul {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+}
+.exp-guide li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14px;
+  color: #dde6f0;
+  margin: 8px 0;
+}
+.exp-guide .eg-ico {
+  color: #9fdcff;
+  flex: 0 0 auto;
+}
+.exp-guide .eg-foot {
+  font-size: 12px;
+  color: #8fa0b4;
+  margin: 0 0 14px;
+}
+.exp-guide .eg-actions {
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+.exp-guide .eg-close {
+  pointer-events: auto;
+  background: rgba(150, 200, 230, 0.14);
+  border: 1px solid rgba(150, 200, 230, 0.35);
+  color: #e8eef6;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.exp-guide .eg-close:hover {
+  background: rgba(150, 200, 230, 0.28);
+}
+.exp-guide .eg-x {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  pointer-events: auto;
+  background: transparent;
+  border: none;
+  color: #9fb0c4;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.exp-guide .eg-x:hover {
+  color: #ffffff;
+}
+
+/* ---------- Indicador interactivo sutil del monitor ---------- */
+.monitor-hint {
+  pointer-events: none;
+  user-select: none;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: rgba(180, 230, 255, 0.85);
+  text-shadow: 0 0 10px rgba(120, 210, 255, 0.6);
+  white-space: nowrap;
+  animation: hintPulse 2.4s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.95; }
+}
+
+/* ---------- Panel de configuración (engranaje) ---------- */
+.sg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 2, 4, 0.45);
+  backdrop-filter: blur(2px);
+}
+.sg-panel {
+  width: 320px;
+  background: #0c0c0e;
+  color: #cfcfd4;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 18px 20px 20px;
+  font-family: "General Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+.sg-title {
+  font-weight: 700;
+  letter-spacing: 4px;
+  font-size: 18px;
+  color: #fff;
+}
+.sg-sub {
+  color: #8a8a90;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+}
+.sg-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+}
+.sg-label {
+  width: 72px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #9a9aa1;
+}
+.sg-row input[type="range"] {
+  flex: 1;
+  accent-color: #cfcfd4;
+}
+.sg-val {
+  width: 38px;
+  text-align: right;
+  font-size: 11px;
+  color: #cfcfd4;
+}
+.sg-select {
+  flex: 1;
+  background: #16161a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e9e9ec;
+  padding: 5px 8px;
+  font-size: 12px;
+  outline: none;
+}
+.sg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+}
+.sg-btn {
+  flex: 1;
+  min-width: 120px;
+  background: #e9e9ec;
+  color: #0c0c0d;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-family: inherit;
+}
+.sg-btn:hover {
+  background: #fff;
+}
+.sg-btn.ghost {
+  background: transparent;
+  color: #cfcfd4;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.sg-btn.ghost:hover {
+  border-color: #fff;
+  color: #fff;
+}
+.sg-confirm {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #9a9aa1;
+}
+.sg-confirm .sg-btn {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 6px 12px;
+}
+
+/* ---------- Panel de administración: pestaña Pagos ---------- */
+.sg-wide {
+  width: 520px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+.sg-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+}
+.sg-tab {
+  background: transparent;
+  border: none;
+  color: #8a8a90;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px 2px;
+  font-family: inherit;
+}
+.sg-tab.active {
+  color: #fff;
+  border-bottom: 2px solid #cfcfd4;
+}
+.sg-pagos {
+  font-size: 12px;
+}
+.sg-note {
+  color: #b9bcc4;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid #cfcfd4;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 0 0 14px;
+  font-size: 12px;
+}
+.sg-block {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.sg-block-h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #cfcfd4;
+  margin-bottom: 8px;
+}
+.sg-select.sm {
+  flex: 1;
+  min-width: 120px;
+}
+.sg-sub-h {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #8a8a90;
+  margin: 12px 0 6px;
+}
+.sg-mini {
+  color: #8a8a90;
+  font-size: 11px;
+}
+.sg-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 12px;
+  color: #d8d8dc;
+  cursor: pointer;
+}
+.sg-check.inline {
+  display: inline-flex;
+  margin-right: 16px;
+}
+.sg-pill {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.sg-check.inline .sg-pill {
+  margin-left: 8px;
+}
+.sg-pill.sg-active {
+  background: #16301f;
+  color: #7fdc9e;
+}
+.sg-pill.sg-soon {
+  background: #2e2516;
+  color: #e0b35c;
+}
+.sg-pill.sg-disabled {
+  background: #1c1c20;
+  color: #8a8a90;
+}
+.sg-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.sg-link {
+  font-size: 11px;
+  color: #9fd2ef;
+  text-decoration: none;
+  border: 1px solid rgba(159, 210, 239, 0.3);
+  border-radius: 5px;
+  padding: 4px 9px;
+}
+.sg-link:hover {
+  background: rgba(159, 210, 239, 0.12);
+  color: #c8e7f7;
+}
+.sg-security {
+  font-size: 11px;
+  color: #8fd0a4;
+  background: rgba(40, 90, 60, 0.18);
+  border: 1px solid rgba(120, 200, 150, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 4px;
+}

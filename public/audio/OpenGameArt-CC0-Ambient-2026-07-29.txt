@@ -1,0 +1,17 @@
+OpenGameArt.org CC0 ambient beds — license record (acquired 2026-07-29)
+
+Each work below is published on OpenGameArt.org under Creative Commons Zero
+(CC0 1.0 Universal, https://creativecommons.org/publicdomain/zero/1.0/), as
+stated on each item's individual page. Dated page snapshots are preserved in
+LICENSES/evidence/.
+
+- "Ancient caverns (horror ambient loop)" by congusbongus
+  https://opengameart.org/content/ancient-caverns-horror-ambient-loop
+- "Cathedral in the forest (ambient loop)" by congusbongus
+  https://opengameart.org/content/cathedral-in-the-forest-ambient-loop
+- "Dark Shrine Loop" by qubodup (remix of yd's CC0 "Shrine", built in LMMS)
+  https://opengameart.org/content/dark-shrine-loop
+- "Loopable Dungeon Ambience" by JaggedStone
+  https://opengameart.org/content/loopable-dungeon-ambience
+
+Attribution is not required under CC0; crediting the authors is a courtesy.
