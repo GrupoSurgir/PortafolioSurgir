@@ -301,6 +301,7 @@ export default function Monitor({ pcRef, poweredOn, isPoweringOn, isPoweringOff,
           enterStarted.current = false;
           s.clicked = false;
           s.t = 0;
+          pc.booting = false;
           // Marcar que el usuario hizo click para mantener el estado
           // (el siguiente click entrará directo a StoreApp)
           setHint(false);

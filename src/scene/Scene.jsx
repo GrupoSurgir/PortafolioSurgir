@@ -189,7 +189,7 @@ function CameraControls({ pcRef }) {
   );
 }
 
-function SceneContents({ wakeRef, startedRef, pcRef, environmentId, onGl }) {
+function SceneContents({ wakeRef, startedRef, pcRef, environmentId, onGl, poweredOn, isPoweringOn, isPoweringOff, onCpuClick }) {
   const { scene } = useThree();
   const tRef = useRef(0);
   const ambientRef = useRef();
@@ -285,6 +285,10 @@ function SceneContents({ wakeRef, startedRef, pcRef, environmentId, onGl }) {
           position={w.position}
           rotationY={w.rotationY}
           storeId={w.storeId}
+          poweredOn={poweredOn}
+          isPoweringOn={isPoweringOn}
+          isPoweringOff={isPoweringOff}
+          onCpuClick={onCpuClick}
         />
       ))}
 
