@@ -2,6 +2,7 @@ import { useState } from "react";
 import { site } from "../data/site.js";
 import { useCart } from "../hooks/useCart.jsx";
 import { usePayments } from "./PaymentsContext.jsx";
+import { useAuth } from "./AuthContext.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import StorePage from "./pages/StorePage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
@@ -11,6 +12,7 @@ import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
+import AccountPage from "./pages/AccountPage.jsx";
 import "./store.css";
 
 const NAV = [
@@ -20,11 +22,13 @@ const NAV = [
   { id: "projects", label: "Proyectos" },
   { id: "about", label: "Sobre" },
   { id: "contact", label: "Contacto" },
+  { id: "account", label: "Cuenta" },
 ];
 
 function StoreAppInner() {
   usePayments();
   const cart = useCart();
+  const auth = useAuth();
   const [route, setRoute] = useState({ page: "home", params: {} });
   const [search, setSearch] = useState("");
 
@@ -53,6 +57,8 @@ function StoreAppInner() {
         return <CartPage {...props} />;
       case "checkout":
         return <CheckoutPage {...props} />;
+      case "account":
+        return <AccountPage {...props} />;
       case "home":
       default:
         return <HomePage {...props} />;
@@ -90,6 +96,19 @@ function StoreAppInner() {
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSearch()}
         />
+        <button
+          className="sa-account-btn"
+          title={auth.user ? "Mi cuenta" : "Iniciar sesión"}
+          onClick={() => navigate("account")}
+        >
+          {auth.user ? (
+            <span className="sa-avatar sm">
+              {auth.user.avatar || auth.user.name.charAt(0)}
+            </span>
+          ) : (
+            "Cuenta"
+          )}
+        </button>
         <button className="sa-cart-btn" onClick={() => navigate("cart")}>
           Carrito {cart.count > 0 && <span className="sa-cart-count">{cart.count}</span>}
         </button>

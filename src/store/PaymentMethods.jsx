@@ -14,11 +14,12 @@ function Badge({ status }) {
   return <span className={`pm-badge pm-${status}`}>{STATUS_LABEL[status]}</span>;
 }
 
-function Chip({ label, status }) {
+function Chip({ label, status, detail }) {
   return (
     <div className="pm-chip">
       <span className="pm-name">{label}</span>
       <Badge status={status} />
+      {detail && <span className="pm-detail">{detail}</span>}
     </div>
   );
 }
@@ -66,7 +67,12 @@ export function PaymentMethods({ cfg }) {
           <p className="pm-sub">Métodos locales ({countryLabel})</p>
           <div className="pm-grid">
             {locals.map((m) => (
-              <Chip key={m.id} label={m.label} status={localStatus(cfg, m.id)} />
+              <Chip
+                key={m.id}
+                label={m.label}
+                status={localStatus(cfg, m.id)}
+                detail={cfg.billing?.[m.id] || ""}
+              />
             ))}
           </div>
         </>
@@ -76,7 +82,11 @@ export function PaymentMethods({ cfg }) {
         <>
           <p className="pm-sub">Internacional</p>
           <div className="pm-grid">
-            <Chip label="PayPal" status={paypalStatus(cfg)} />
+            <Chip
+              label="PayPal"
+              status={paypalStatus(cfg)}
+              detail={cfg.billing?.paypalEmail || ""}
+            />
           </div>
         </>
       )}

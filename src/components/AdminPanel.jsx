@@ -275,6 +275,42 @@ export default function AdminPanel({ settings, setSettings, onClose }) {
             </div>
 
             <div className="sg-block">
+              <div className="sg-block-h">Datos de cobro (métodos manuales)</div>
+              <p className="sg-mini">
+                Cuentas donde llega el dinero de transferencias y métodos
+                manuales. Aparecen en el checkout cuando el método está activo.
+              </p>
+              {["nequi", "daviplata", "bancolombia"].map((k) => (
+                <div className="sg-row" key={k}>
+                  <div className="sg-label">{k}</div>
+                  <input
+                    className="sg-input"
+                    placeholder="Número / cuenta"
+                    value={payments.billing?.[k] || ""}
+                    onChange={(e) =>
+                      updatePay({
+                        billing: { ...payments.billing, [k]: e.target.value },
+                      })
+                    }
+                  />
+                </div>
+              ))}
+              <div className="sg-row">
+                <div className="sg-label">PayPal</div>
+                <input
+                  className="sg-input"
+                  placeholder="Correo de PayPal"
+                  value={payments.billing?.paypalEmail || ""}
+                  onChange={(e) =>
+                    updatePay({
+                      billing: { ...payments.billing, paypalEmail: e.target.value },
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="sg-block">
               <div className="sg-block-h">Modo</div>
               <label className="sg-check inline">
                 <input

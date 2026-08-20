@@ -21,12 +21,15 @@ export default function CheckoutPage({ navigate, cart }) {
   }
 
   if (done) {
+    const free = cart.total === 0;
     return (
       <div className="sa-wrap">
-        <h1 className="sa-h1">Pedido confirmado</h1>
+        <h1 className="sa-h1">{free ? "Descarga registrada" : "Pedido confirmado"}</h1>
         <div className="sa-msg ok" style={{ marginTop: 14 }}>
-          Gracias, {form.name || "cliente"}. Hemos registrado tu pedido.
-          Próximamente activaremos el pago real.
+          Gracias, {form.name || "cliente"}.{" "}
+          {free
+            ? "Tu descarga gratuita quedó registrada. Los archivos gratuitos se descargan directo desde la ficha del producto."
+            : "Hemos registrado tu pedido. Próximamente activaremos el pago real."}
         </div>
         <button className="sa-btn block" onClick={() => navigate("home")}>
           Volver al inicio
@@ -89,7 +92,7 @@ export default function CheckoutPage({ navigate, cart }) {
           setDone(true);
         }}
       >
-        Confirmar pedido
+        Confirmar pedido {cart.total === 0 && "(Gratis)"}
       </button>
       <p className="sa-muted" style={{ fontSize: 11, marginTop: 8 }}>
         La pasarela de pago aún no está activa. Este flujo queda preparado para

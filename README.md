@@ -58,8 +58,11 @@ src/
     services.js               Servicios
     projects.js               Portafolio de proyectos
     site.js                   Información de la marca y contacto
+    auth.js                   Login Google/Discord (OAuth2)
   hooks/
     useCart.jsx               Carrito global (localStorage "surgir-cart")
+  store/
+    AuthContext.jsx           Sesión de usuario (Google / Discord)
   components/
     AudioEngine.js            Motor de audio (WebAudio, ambientes)
     ExperienceGuide.jsx       Guía de bienvenida de la experiencia
@@ -67,6 +70,7 @@ src/
     AdminPanel.jsx            Panel de configuración (engranaje ⚙)
 public/
   logo.png                    Favicon y logo proyectado en el boot
+  downloads/                  Archivos descargables (productos digitales)
   _redirects                  SPA fallback para Netlify
   audio/                      Paisajes sonoros (CC0) + licencias
 ```
@@ -82,24 +86,51 @@ Todo el contenido de la tienda, servicios, proyectos y contacto vive en
     slug: "surgir-entregas",
     title: "SURGIR Entregas",
     category: "Plugins",
-    price: 0,                 // 0 = gratuito
+    price: 0,                 // 0 = gratuito (se descarga directo)
     status: "disponible",     // disponible | pronto | oculto
     description: "...",
     tags: [...],
     featured: true,
     emoji: "🚚",
+    downloadUrl: "/downloads/mi-archivo.zip",  // para productos digitales
   }
   ```
   `productBySlug`, `productById` y `featuredProducts` se calculan automáticamente.
 - `services.js`, `projects.js`, `site.js` — mismas reglas simples.
+
+### Publicar un producto digital (plugin, recurso, archivo)
+
+1. Agrega el producto en `src/data/products.js` (con `price: 0` si es gratis).
+2. Sube tu archivo a `public/downloads/` (ej: `public/downloads/mi-archivo.zip`)
+   y escribe esa ruta en `downloadUrl`.
+3. En local: `npm run build` para verificar. Luego `git push`; Netlify
+   despliega automáticamente.
+4. Para cobrar productos de pago, configura los pagos en el panel de
+   administración (engranaje ⚙ → Pagos).
+
+## Cuenta: registrarse con Google o Discord
+
+- En `Cuenta` el usuario se registra/inicia sesión con **Google** o **Discord**.
+- La sesión se guarda en `localStorage` ("surgir-session") y se comparte entre
+  la vista del monitor y la pantalla completa.
+- **Modo demo (por defecto):** `src/data/auth.js` tiene `demo: true`; los
+  botones simulan la sesión para probar el flujo sin backend.
+- **Modo real:** crea las aplicaciones OAuth en Google
+  (`https://console.cloud.google.com/apis/credentials`) y Discord
+  (`https://discord.com/developers/applications`), completa `clientId` y
+  `redirectUri` en `src/data/auth.js` y pon `demo: false`. El intercambio de
+  tokens (código → sesión) debe ocurrir en un backend seguro; el frontend solo
+  redirige al proveedor y nunca guarda secretos.
 
 ## Pagos
 
 `src/store/payments.js` define los métodos (PSE, Nequi, tarjeta, transferencia)
 y su estado (`activo` / `pronto`). La configuración se edita desde el panel de
 administración (engranaje ⚙ en la experiencia 3D) y queda en `localStorage`.
-No hay pasarela real conectada: el checkout registra la orden y muestra
-instrucciones de pago.
+El panel incluye **datos de cobro** (número de Nequi, cuenta Bancolombia,
+Daviplata y correo de PayPal) que se muestran en el checkout para los métodos
+manuales. No hay pasarela real conectada: el checkout registra la orden y
+muestra instrucciones de pago.
 
 ## Despliegue (Netlify)
 

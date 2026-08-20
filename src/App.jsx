@@ -5,6 +5,7 @@ import DragGestureIndicator from "./components/DragGestureIndicator.jsx";
 import AdminPanel from "./components/AdminPanel.jsx";
 import StoreApp from "./store/StoreApp.jsx";
 import { PaymentsProvider } from "./store/PaymentsContext.jsx";
+import { AuthProvider } from "./store/AuthContext.jsx";
 import { CartProvider } from "./hooks/useCart.jsx";
 import { useAmbientAudio } from "./components/AudioEngine.js";
 import { computeWake } from "./wake.js";
@@ -126,73 +127,75 @@ export default function App() {
   const in3D = phase === "space" || phase === "page";
 
   return (
-    <PaymentsProvider>
-      <CartProvider>
-        <div className="relative h-screen w-screen bg-black">
-          {/* Espacio 3D: montado desde el inicio. El PC es el centro; al hacer
-              click en la pantalla se enciende y la cámara entra en él. */}
-          {in3D && (
-            <div className="scene-wrap">
-              <Suspense fallback={null}>
-                <Scene
-                  wakeRef={wakeRef}
-                  startedRef={startedRef}
-                  pcRef={pcRef}
-                  environmentId={settings.environment}
-                  onGl={onGl}
-                />
-              </Suspense>
-            </div>
-          )}
+    <AuthProvider>
+      <PaymentsProvider>
+        <CartProvider>
+          <div className="relative h-screen w-screen bg-black">
+            {/* Espacio 3D: montado desde el inicio. El PC es el centro; al hacer
+                click en la pantalla se enciende y la cámara entra en él. */}
+            {in3D && (
+              <div className="scene-wrap">
+                <Suspense fallback={null}>
+                  <Scene
+                    wakeRef={wakeRef}
+                    startedRef={startedRef}
+                    pcRef={pcRef}
+                    environmentId={settings.environment}
+                    onGl={onGl}
+                  />
+                </Suspense>
+              </div>
+            )}
 
-          {/* Overlay de líneas: parte de la experiencia 3D. */}
-          {phase === "space" && <LinesOverlay wakeRef={wakeRef} />}
+            {/* Overlay de líneas: parte de la experiencia 3D. */}
+            {phase === "space" && <LinesOverlay wakeRef={wakeRef} />}
 
-          {/* Engranaje: abre configuración durante la observación del PC. */}
-          {phase === "space" && (
-            <button
-              className="gear-btn"
-              title="Configuración"
-              onClick={() => {
-                pcRef.current.panelOpen = true;
-                setPanelOpen(true);
-              }}
-            >
-              ⚙
-            </button>
-          )}
+            {/* Engranaje: abre configuración durante la observación del PC. */}
+            {phase === "space" && (
+              <button
+                className="gear-btn"
+                title="Configuración"
+                onClick={() => {
+                  pcRef.current.panelOpen = true;
+                  setPanelOpen(true);
+                }}
+              >
+                ⚙
+              </button>
+            )}
 
-          {/* Marca SURGIR durante la experiencia 3D. */}
-          {phase === "space" && (
-            <img src="/logo.png" alt="Surgir" className="space-logo" />
-          )}
+            {/* Marca SURGIR durante la experiencia 3D. */}
+            {phase === "space" && (
+              <img src="/logo.png" alt="Surgir" className="space-logo" />
+            )}
 
-          {/* Guía de bienvenida de la experiencia SURGIR. */}
-          {phase === "space" && <ExperienceGuide />}
+            {/* Guía de bienvenida de la experiencia SURGIR. */}
+            {phase === "space" && <ExperienceGuide />}
 
-          {/* Indicador de gesto de arrastre en el espacio 3D. */}
-          {phase === "space" && <DragGestureIndicator />}
+            {/* Indicador de gesto de arrastre en el espacio 3D. */}
+            {phase === "space" && <DragGestureIndicator />}
 
-          {/* Aplicación SURGIR a pantalla completa (al entrar en el monitor). */}
-          {phase === "page" && (
-            <div className="page-wrap">
-              <StoreApp />
-            </div>
-          )}
+            {/* Aplicación SURGIR a pantalla completa (al entrar en el monitor). */}
+            {phase === "page" && (
+              <div className="page-wrap">
+                <StoreApp />
+              </div>
+            )}
 
-          {/* Configuración (engranaje). */}
-          {panelOpen && (
-            <AdminPanel
-              settings={settings}
-              setSettings={setSettings}
-              onClose={() => {
-                pcRef.current.panelOpen = false;
-                setPanelOpen(false);
-              }}
-            />
-          )}
-        </div>
-      </CartProvider>
-    </PaymentsProvider>
+            {/* Configuración (engranaje). */}
+            {panelOpen && (
+              <AdminPanel
+                settings={settings}
+                setSettings={setSettings}
+                onClose={() => {
+                  pcRef.current.panelOpen = false;
+                  setPanelOpen(false);
+                }}
+              />
+            )}
+          </div>
+        </CartProvider>
+      </PaymentsProvider>
+    </AuthProvider>
   );
 }

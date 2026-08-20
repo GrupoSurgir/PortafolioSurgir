@@ -271,6 +271,19 @@ canvas {
   font-size: 12px;
   outline: none;
 }
+.sg-input {
+  flex: 1;
+  background: #16161a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e9e9ec;
+  padding: 5px 8px;
+  font-size: 12px;
+  outline: none;
+  min-width: 0;
+}
+.sg-input:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+}
 .sg-actions {
   display: flex;
   flex-wrap: wrap;

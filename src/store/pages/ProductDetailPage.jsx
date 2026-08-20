@@ -18,6 +18,7 @@ export default function ProductDetailPage({ navigate, cart, params }) {
   }
 
   const unavailable = p.status === "Próximamente" || p.status === "En preparación";
+  const free = p.price === 0;
 
   const links = [];
   if (p.downloadUrl) links.push({ label: "Descargar", href: p.downloadUrl });
@@ -64,24 +65,44 @@ export default function ProductDetailPage({ navigate, cart, params }) {
             </div>
           )}
 
-          <div className="sa-price-lg">${p.price}</div>
+          <div className="sa-price-lg">{free ? "Gratis" : `$${p.price}`}</div>
 
-          <div className="sa-qty">
-            <button onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
-            <span>{qty}</span>
-            <button onClick={() => setQty((q) => q + 1)}>+</button>
-          </div>
+          {free ? (
+            <>
+              <a
+                className="sa-btn accent block sa-download"
+                href={p.downloadUrl}
+                download
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                ⬇ Descargar plugin (0 pesos)
+              </a>
+              <p className="sa-muted" style={{ fontSize: 12, marginTop: 8 }}>
+                Gratis y configurable: descarga el ZIP, edita su config.yml y
+                pruébalo en tu servidor.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="sa-qty">
+                <button onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
+                <span>{qty}</span>
+                <button onClick={() => setQty((q) => q + 1)}>+</button>
+              </div>
 
-          <button
-            className="sa-btn accent block"
-            disabled={unavailable}
-            onClick={() => {
-              cart.add(p.slug, qty);
-              navigate("cart");
-            }}
-          >
-            {unavailable ? "Próximamente" : "Agregar al carrito"}
-          </button>
+              <button
+                className="sa-btn accent block"
+                disabled={unavailable}
+                onClick={() => {
+                  cart.add(p.slug, qty);
+                  navigate("cart");
+                }}
+              >
+                {unavailable ? "Próximamente" : "Agregar al carrito"}
+              </button>
+            </>
+          )}
 
           {links.length > 0 && (
             <div className="sa-links">

@@ -192,6 +192,14 @@ export function defaultPaymentsConfig() {
       pse: true, nequi: true, bancolombia: true, daviplata: true,
       oxxo: false, spei: false, boleto: false, pix: false, mercadopago: false,
     },
+    // Datos de cobro para métodos manuales/transferencias (los define el
+    // administrador en el panel). No son secretos: son cuentas para recibir.
+    billing: {
+      nequi: "",
+      daviplata: "",
+      bancolombia: "",
+      paypalEmail: "",
+    },
   };
 }
 
@@ -220,6 +228,7 @@ export function loadPaymentsConfig() {
       connected: false, // nunca confiamos en connected desde el frontend
       cards: { ...d.cards, ...(p.cards || {}) },
       local: { ...d.local, ...(p.local || {}) },
+      billing: { ...d.billing, ...(p.billing || {}) },
     };
   } catch {
     return defaultPaymentsConfig();
@@ -239,6 +248,7 @@ export function savePaymentsConfig(cfg) {
         mode: cfg.mode,
         cards: cfg.cards,
         local: cfg.local,
+        billing: cfg.billing,
       })
     );
   } catch {}
