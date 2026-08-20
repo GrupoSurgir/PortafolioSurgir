@@ -14,6 +14,10 @@ import "./store.css";
 
 const THEME_KEY = "surgir-theme";
 
+// Scroll de la app conservado entre sesiones de pantalla completa: al volver a
+// la experiencia 3D se guarda y al reabrir la app se restaura (misma ruta).
+let savedAppScroll = 0;
+
 // El resto de secciones vive dentro de "Categorías" (mismo concepto en PC y móvil).
 const CATEGORIES = [
   { id: "shop", label: "Tienda", icon: "🛒" },
@@ -116,6 +120,17 @@ function StoreAppInner({ storeId, onExit }) {
   useEffect(() => {
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
+
+  // Restaurar el scroll de la sesión anterior al reabrir la app; guardarlo al
+  // salir a la experiencia 3D (misma ruta conservada por hash).
+  useEffect(() => {
+    const app = document.querySelector(".surgir-app");
+    if (app) app.scrollTop = savedAppScroll;
+    return () => {
+      const a = document.querySelector(".surgir-app");
+      if (a) savedAppScroll = a.scrollTop;
+    };
+  }, []);
 
   const effectiveTheme =
     theme === "system" ? (systemDark ? "dark" : "light") : theme;

@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import StoreApp from "../store/StoreApp.jsx";
+import MonitorWeb from "./MonitorWeb.jsx";
 
 // Monitor de SURGIR — PC futurista en el espacio profundo.
 //
@@ -16,8 +16,9 @@ import StoreApp from "../store/StoreApp.jsx";
 //
 // El PC PERMANECE ENCENDIDO durante toda la sesión. Al volver al espacio (ESC o
 // el botón "Regresar" de la web) la cámara regresa a observar el monitor, que
-// sigue mostrando la aplicación encendida. Un NUEVO click en la pantalla entra
-// DIRECTAMENTE a la web, sin repetir el boot.
+// sigue mostrando una vista ligera de la ÚLTIMA página web visitada (sincronizada
+// por hash). Un NUEVO click en la pantalla entra DIRECTAMENTE a la app, en la
+// misma ruta, sin repetir el boot.
 //
 // La pantalla se ilumina SOLO mediante su propio contenido (emissiveMap). No hay
 // PointLight/SpotLight fuerte delante del monitor: el "brillo" nace del arranque
@@ -34,7 +35,7 @@ function smooth(a, b, x) {
   return t * t * (3 - 2 * t);
 }
 
-export default function Monitor({ pcRef, storeId = "surgir" }) {
+export default function Monitor({ pcRef }) {
   const canvas = useMemo(() => {
     const c = document.createElement("canvas");
     c.width = W;
@@ -351,8 +352,9 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
         />
       </mesh>
 
-      {/* Web moderna REAL proyectada sobre el monitor, pero SOLO tras el boot
-          (nunca antes de interactuar). Aparece fundiéndose con la secuencia. */}
+      {/* Vista previa ligera de la última página web sobre la pantalla, SOLO tras
+          el boot (nunca antes de interactuar). NO es interactiva: pointerEvents
+          none deja que el click del monitor llegue al panel y reabra la app. */}
       {revealed && (
         <Html
           transform
@@ -363,17 +365,12 @@ export default function Monitor({ pcRef, storeId = "surgir" }) {
             width: 1200,
             height: 693,
             overflow: "hidden",
-            pointerEvents: "auto",
+            pointerEvents: "none",
             borderRadius: 6,
           }}
         >
           <div className="monitor-web">
-            <StoreApp
-              storeId={storeId}
-              onExit={() =>
-                pcRef.current.resetView && pcRef.current.resetView()
-              }
-            />
+            <MonitorWeb />
           </div>
         </Html>
       )}
